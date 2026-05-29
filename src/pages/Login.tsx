@@ -1,6 +1,159 @@
 import { memo } from "react";
 import type { FC } from "react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  Link,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { LogoIcon } from "../components/ui/LogoIcon";
 
 export const Login: FC = memo(() => {
-  return <p>ログインページです</p>;
+  return (
+    <Flex
+      minH="100svh"
+      align="center"
+      justify="center"
+      bg="gray.50"
+      px={{ base: 4, md: 8 }}
+      py={{ base: 8, md: 12 }}
+    >
+      <Flex
+        w="full"
+        maxW="980px"
+        minH={{ base: "auto", md: "620px" }}
+        bg="white"
+        borderRadius={{ base: "2xl", md: "3xl" }}
+        overflow="hidden"
+        boxShadow="0 24px 70px rgba(15, 23, 42, 0.12)"
+        border="1px solid"
+        borderColor="gray.100"
+      >
+        <Flex
+          flex="1"
+          display={{ base: "none", md: "flex" }}
+          direction="column"
+          justify="space-between"
+          bg="teal.600"
+          color="white"
+          p={10}
+          textAlign="left"
+        >
+          <Box>
+            <LogoIcon
+              boxSize={12}
+              bg="whiteAlpha.300"
+              fontSize="xl"
+              mb={8}
+            />
+            <Heading
+              as="h1"
+              color="white"
+              fontSize="4xl"
+              lineHeight="1.15"
+              mb={4}
+            >
+              毎日の食事を、
+              <br />
+              無理なく記録。
+            </Heading>
+            <Text color="teal.50" fontSize="md" lineHeight="1.8">
+              食事履歴、体調、習慣の変化をひとつの場所で確認できます。
+            </Text>
+          </Box>
+          <Box
+            borderTop="1px solid"
+            borderColor="whiteAlpha.300"
+            pt={6}
+            color="teal.50"
+            fontSize="sm"
+            lineHeight="1.8"
+          >
+            記録を続けるほど、自分に合う食生活が見えてきます。
+          </Box>
+        </Flex>
+
+        <Flex
+          flex="1"
+          direction="column"
+          justify="center"
+          px={{ base: 6, md: 12 }}
+          py={{ base: 10, md: 12 }}
+          textAlign="left"
+        >
+          <Box mb={8}>
+            <Text color="teal.600" fontWeight="semibold" fontSize="sm" mb={3}>
+              Meal Tracking
+            </Text>
+            <Heading
+              as="h2"
+              color="gray.900"
+              fontSize={{ base: "2xl", md: "3xl" }}
+              mb={3}
+            >
+              ログイン
+            </Heading>
+            <Text color="gray.500" fontSize="sm">
+              アカウント情報を入力してください。
+            </Text>
+          </Box>
+
+          <Stack gap={4}>
+            <Box>
+              <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                メールアドレス
+              </Text>
+              <Input
+                type="email"
+                placeholder="example@email.com"
+                size="lg"
+                borderRadius="xl"
+                bg="gray.50"
+                borderColor="gray.200"
+                _focus={{
+                  borderColor: "teal.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
+                }}
+              />
+            </Box>
+            <Box>
+              <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                パスワード
+              </Text>
+              <Input
+                type="password"
+                placeholder="password"
+                size="lg"
+                borderRadius="xl"
+                bg="gray.50"
+                borderColor="gray.200"
+                _focus={{
+                  borderColor: "teal.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
+                }}
+              />
+            </Box>
+            <Flex justify="flex-end">
+              <Link color="teal.600" fontSize="sm" fontWeight="medium">
+                パスワードを忘れた方
+              </Link>
+            </Flex>
+            <Button
+              size="lg"
+              borderRadius="xl"
+              colorPalette="teal"
+              mt={2}
+              boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
+            >
+              ログイン
+            </Button>
+          </Stack>
+        </Flex>
+      </Flex>
+    </Flex>
+  );
 });
