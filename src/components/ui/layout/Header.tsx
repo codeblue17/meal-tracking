@@ -13,8 +13,9 @@ import {
 import { LogoIcon } from "../LogoIcon";
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { FaBars, FaUserCircle } from "react-icons/fa";
+import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate, Link as RouterLink, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { label: "ダッシュボード", path: "/dashboard" },
@@ -25,10 +26,16 @@ export const Header: FC = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { signOut } = useAuth();
 
   const handleNavigate = (path: string) => {
     setIsOpen(false);
     navigate(path);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
@@ -105,20 +112,32 @@ export const Header: FC = memo(() => {
             );
           })}
         </HStack>
-        <RouterLink to="/profile" style={{ outline: "none" }}>
+        <HStack display={{ base: "none", md: "flex" }} gap={1}>
+          <RouterLink to="/profile" style={{ outline: "none" }}>
+            <IconButton
+              size="md"
+              variant="ghost"
+              aria-label="プロフィール"
+              borderRadius="full"
+              color={location.pathname === "/profile" ? "teal.700" : "gray.600"}
+              bg={location.pathname === "/profile" ? "teal.50" : "transparent"}
+              _hover={{ bg: "teal.50", color: "teal.700" }}
+            >
+              <FaUserCircle size={24} />
+            </IconButton>
+          </RouterLink>
           <IconButton
             size="md"
             variant="ghost"
-            aria-label="プロフィール"
+            aria-label="サインアウト"
             borderRadius="full"
-            color={location.pathname === "/profile" ? "teal.700" : "gray.600"}
-            bg={location.pathname === "/profile" ? "teal.50" : "transparent"}
-            display={{ base: "none", md: "inline-flex" }}
-            _hover={{ bg: "teal.50", color: "teal.700" }}
+            color="gray.600"
+            onClick={handleSignOut}
+            _hover={{ bg: "red.50", color: "red.600" }}
           >
-            <FaUserCircle size={24} />
+            <FaSignOutAlt size={20} />
           </IconButton>
-        </RouterLink>
+        </HStack>
         <Drawer.Root
           placement="start"
           size="xs"
@@ -188,6 +207,16 @@ export const Header: FC = memo(() => {
                   onClick={() => handleNavigate("/profile")}
                 >
                   プロフィール
+                </Button>
+                <Button
+                  w="100%"
+                  justifyContent="flex-start"
+                  borderRadius="lg"
+                  variant="ghost"
+                  colorPalette="red"
+                  onClick={handleSignOut}
+                >
+                  サインアウト
                 </Button>
               </Drawer.Body>
               <Drawer.Footer />

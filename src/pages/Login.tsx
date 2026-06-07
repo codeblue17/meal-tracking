@@ -1,4 +1,5 @@
-import { memo } from "react";
+import { memo, useState } from "react";
+import React from "react";
 import type { FC } from "react";
 import {
   Box,
@@ -10,9 +11,35 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { LogoIcon } from "../components/ui/LogoIcon";
+import { useAuth } from "@/hooks/useAuth";
+import { toaster } from "@/components/ui/toaster-instance";
 
 export const Login: FC = memo(() => {
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await signIn(email, password);
+      navigate("/dashboard");
+    } catch {
+      toaster.create({
+        title: "ログインに失敗しました",
+        description: "メールアドレスまたはパスワードが正しくありません",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Flex
       minH="100svh"
@@ -78,6 +105,8 @@ export const Login: FC = memo(() => {
         </Flex>
 
         <Flex
+          as="form"
+          onSubmit={handleSubmit}
           flex="1"
           direction="column"
           justify="center"
@@ -114,6 +143,9 @@ export const Login: FC = memo(() => {
                 borderRadius="xl"
                 bg="gray.50"
                 borderColor="gray.200"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 _focus={{
                   borderColor: "teal.500",
                   boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
@@ -131,6 +163,9 @@ export const Login: FC = memo(() => {
                 borderRadius="xl"
                 bg="gray.50"
                 borderColor="gray.200"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 _focus={{
                   borderColor: "teal.500",
                   boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
@@ -143,10 +178,12 @@ export const Login: FC = memo(() => {
               </Link>
             </Flex>
             <Button
+              type="submit"
               size="lg"
               borderRadius="xl"
               colorPalette="teal"
               mt={2}
+              loading={loading}
               boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
             >
               ログイン
