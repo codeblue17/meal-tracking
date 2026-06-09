@@ -45,6 +45,13 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     if (error) throw error;
   };
 
+  const signUp = async (email: string, password: string) => {
+    if (!supabase) throw new Error("Supabase is not configured");
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    return { needsConfirmation: !data.session };
+  };
+
   const signOut = async () => {
     if (!supabase) {
       throw new Error("Supabase is not configured");
@@ -56,7 +63,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user: session?.user ?? null, session, loading, signIn, signOut }}
+      value={{ user: session?.user ?? null, session, loading, signIn, signUp, signOut }}
     >
       {children}
     </AuthContext.Provider>

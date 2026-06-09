@@ -7,7 +7,6 @@ import {
   Flex,
   Heading,
   Input,
-  Link,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -16,23 +15,41 @@ import { LogoIcon } from "../components/ui/LogoIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 
-export const Login: FC = memo(() => {
-  const { signIn } = useAuth();
+export const Signup: FC = memo(() => {
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.BaseSyntheticEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toaster.create({
+        title: "パスワードが一致しません",
+        description: "パスワードと確認用パスワードを同じ値にしてください",
+        type: "error",
+      });
+      return;
+    }
     setLoading(true);
     try {
-      await signIn(email, password);
-      navigate("/dashboard");
+      const { needsConfirmation } = await signUp(email, password);
+      if (needsConfirmation) {
+        toaster.create({
+          title: "確認メールを送信しました",
+          description: "メールに記載のリンクをクリックしてアカウントを有効化してください",
+          type: "success",
+        });
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
     } catch {
       toaster.create({
-        title: "ログインに失敗しました",
-        description: "メールアドレスまたはパスワードが正しくありません",
+        title: "登録に失敗しました",
+        description: "入力内容を確認してもう一度お試しください",
         type: "error",
       });
     } finally {
@@ -84,12 +101,12 @@ export const Login: FC = memo(() => {
               lineHeight="1.15"
               mb={4}
             >
-              毎日の食事を、
+              はじめての一歩を、
               <br />
-              無理なく記録。
+              今日から。
             </Heading>
             <Text color="teal.50" fontSize="md" lineHeight="1.8">
-              食事履歴、体調、習慣の変化をひとつの場所で確認できます。
+              アカウントを作成して、食事の記録をはじめましょう。
             </Text>
           </Box>
           <Box
@@ -124,10 +141,10 @@ export const Login: FC = memo(() => {
               fontSize={{ base: "2xl", md: "3xl" }}
               mb={3}
             >
-              ログイン
+              アカウント作成
             </Heading>
             <Text color="gray.500" fontSize="sm">
-              アカウント情報を入力してください。
+              メールアドレスとパスワードを入力してください。
             </Text>
           </Box>
 
@@ -158,7 +175,7 @@ export const Login: FC = memo(() => {
               </Text>
               <Input
                 type="password"
-                placeholder="password"
+                placeholder="8文字以上"
                 size="lg"
                 borderRadius="xl"
                 bg="gray.50"
@@ -166,17 +183,33 @@ export const Login: FC = memo(() => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
                 _focus={{
                   borderColor: "teal.500",
                   boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
                 }}
               />
             </Box>
-            <Flex justify="flex-end">
-              <Link color="teal.600" fontSize="sm" fontWeight="medium">
-                パスワードを忘れた方
-              </Link>
-            </Flex>
+            <Box>
+              <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                パスワード（確認）
+              </Text>
+              <Input
+                type="password"
+                placeholder="もう一度入力"
+                size="lg"
+                borderRadius="xl"
+                bg="gray.50"
+                borderColor="gray.200"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                _focus={{
+                  borderColor: "teal.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
+                }}
+              />
+            </Box>
             <Button
               type="submit"
               size="lg"
@@ -186,15 +219,15 @@ export const Login: FC = memo(() => {
               loading={loading}
               boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
             >
-              ログイン
+              アカウントを作成
             </Button>
             <Flex justify="center" gap={1}>
               <Text color="gray.500" fontSize="sm">
-                アカウントをお持ちでない方は
+                すでにアカウントをお持ちの方は
               </Text>
-              <RouterLink to="/signup">
+              <RouterLink to="/">
                 <Text color="teal.600" fontSize="sm" fontWeight="medium">
-                  新規登録
+                  ログイン
                 </Text>
               </RouterLink>
             </Flex>
