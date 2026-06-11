@@ -20,6 +20,7 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import type { MealTime } from "@/types/meal";
 import { inputStyle } from "@/styles/formStyles";
+import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
 
 type Props = {
   open: boolean;
@@ -34,18 +35,6 @@ const MEAL_TIMES: { value: MealTime; label: string }[] = [
 ];
 
 const DAYS_OF_WEEK = ["日", "月", "火", "水", "木", "金", "土"];
-
-const formatDisplayDate = (date: Date) =>
-  date.toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-const toDateStr = (date: Date) => {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-};
 
 type CalendarPickerProps = {
   value: Date;
