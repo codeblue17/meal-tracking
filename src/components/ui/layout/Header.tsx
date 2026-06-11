@@ -13,9 +13,10 @@ import {
 import { LogoIcon } from "../LogoIcon";
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { FaBars, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaBars, FaUserCircle, FaSignOutAlt, FaPlus } from "react-icons/fa";
 import { useNavigate, Link as RouterLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { MealFormModal } from "@/components/ui/MealFormModal";
 
 const navItems = [
   { label: "ダッシュボード", path: "/dashboard" },
@@ -26,6 +27,7 @@ export const Header: FC = memo(() => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const { signOut } = useAuth();
 
   const handleNavigate = (path: string) => {
@@ -113,6 +115,17 @@ export const Header: FC = memo(() => {
           })}
         </HStack>
         <HStack display={{ base: "none", md: "flex" }} gap={1}>
+          <IconButton
+            size="md"
+            variant="ghost"
+            aria-label="食事を記録"
+            borderRadius="full"
+            color="gray.600"
+            onClick={() => setIsMealModalOpen(true)}
+            _hover={{ bg: "teal.50", color: "teal.700" }}
+          >
+            <FaPlus size={18} />
+          </IconButton>
           <RouterLink to="/profile" style={{ outline: "none" }}>
             <IconButton
               size="md"
@@ -177,6 +190,19 @@ export const Header: FC = memo(() => {
                 </Drawer.Title>
               </Drawer.Header>
               <Drawer.Body pt={5}>
+                <Button
+                  w="100%"
+                  mb={3}
+                  justifyContent="flex-start"
+                  borderRadius="lg"
+                  colorPalette="teal"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setIsMealModalOpen(true);
+                  }}
+                >
+                  ＋ 食事を記録
+                </Button>
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
 
@@ -227,6 +253,10 @@ export const Header: FC = memo(() => {
           </Drawer.Positioner>
         </Drawer.Root>
       </Flex>
+      <MealFormModal
+        open={isMealModalOpen}
+        onClose={() => setIsMealModalOpen(false)}
+      />
     </>
   );
 });

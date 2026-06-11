@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import type { User } from "@supabase/supabase-js";
+import { inputStyle } from "@/styles/formStyles";
 
 const getInitials = (user: User | null) => {
   const name = user?.user_metadata?.full_name as string | undefined;
@@ -87,16 +88,6 @@ export const Profile: FC = memo(() => {
     navigate("/");
   };
 
-  const inputStyle = {
-    size: "lg" as const,
-    borderRadius: "xl",
-    bg: "gray.50",
-    borderColor: "gray.200",
-    _focus: {
-      borderColor: "teal.500",
-      boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
-    },
-  };
 
   return (
     <Box
@@ -271,7 +262,11 @@ export const Profile: FC = memo(() => {
               borderColor="red.200"
               w="full"
               onClick={handleSignOut}
-              _hover={{ bg: "red.50", borderColor: "red.300", color: "red.600" }}
+              _hover={{
+                bg: "red.50",
+                borderColor: "red.300",
+                color: "red.600",
+              }}
             >
               サインアウト
             </Button>
