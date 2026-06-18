@@ -18,6 +18,7 @@ import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import type { MealTime } from "@/types/meal";
 import { inputStyle } from "@/styles/formStyles";
 import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
@@ -315,18 +316,14 @@ const MealFormContent: FC<{ onClose: () => void }> = memo(({ onClose }) => {
           >
             キャンセル
           </Button>
-          <Button
+          <PrimaryButton
             flex={2}
-            size="lg"
-            borderRadius="xl"
-            colorPalette="teal"
             type="submit"
             form="meal-form"
             loading={loading}
-            boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
           >
             記録する
-          </Button>
+          </PrimaryButton>
         </Flex>
       </Dialog.Footer>
     </>

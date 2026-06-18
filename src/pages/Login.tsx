@@ -3,7 +3,6 @@ import React from "react";
 import type { FC } from "react";
 import {
   Box,
-  Button,
   Flex,
   Heading,
   Input,
@@ -13,6 +12,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { LogoIcon } from "../components/ui/LogoIcon";
+import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
@@ -159,17 +159,13 @@ export const Login: FC = memo(() => {
                 パスワードを忘れた方
               </Link>
             </Flex>
-            <Button
+            <PrimaryButton
               type="submit"
-              size="lg"
-              borderRadius="xl"
-              colorPalette="teal"
               mt={2}
               loading={loading}
-              boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
             >
               ログイン
-            </Button>
+            </PrimaryButton>
             <Flex justify="center" gap={1}>
               <Text color="gray.500" fontSize="sm">
                 アカウントをお持ちでない方は

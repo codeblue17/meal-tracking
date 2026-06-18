@@ -3,7 +3,6 @@ import React from "react";
 import type { FC } from "react";
 import {
   Box,
-  Button,
   Flex,
   Heading,
   Input,
@@ -12,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { LogoIcon } from "../components/ui/LogoIcon";
+import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 
@@ -210,17 +210,13 @@ export const Signup: FC = memo(() => {
                 }}
               />
             </Box>
-            <Button
+            <PrimaryButton
               type="submit"
-              size="lg"
-              borderRadius="xl"
-              colorPalette="teal"
               mt={2}
               loading={loading}
-              boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
             >
               アカウントを作成
-            </Button>
+            </PrimaryButton>
             <Flex justify="center" gap={1}>
               <Text color="gray.500" fontSize="sm">
                 すでにアカウントをお持ちの方は

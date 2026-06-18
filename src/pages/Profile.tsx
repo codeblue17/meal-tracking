@@ -10,6 +10,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
@@ -186,17 +187,14 @@ export const Profile: FC = memo(() => {
                 onChange={(e) => setDisplayName(e.target.value)}
                 {...inputStyle}
               />
-              <Button
-                size="lg"
-                borderRadius="xl"
-                colorPalette="teal"
+              <PrimaryButton
                 px={6}
                 loading={nameLoading}
                 onClick={handleSaveName}
                 flexShrink={0}
               >
                 保存
-              </Button>
+              </PrimaryButton>
             </Flex>
           </Box>
 
@@ -235,17 +233,13 @@ export const Profile: FC = memo(() => {
                   {...inputStyle}
                 />
               </Box>
-              <Button
-                size="lg"
-                borderRadius="xl"
-                colorPalette="teal"
+              <PrimaryButton
                 loading={passwordLoading}
                 onClick={handleChangePassword}
                 mt={1}
-                boxShadow="0 12px 24px rgba(20, 184, 166, 0.22)"
               >
                 パスワードを変更する
-              </Button>
+              </PrimaryButton>
             </Stack>
           </Box>
 

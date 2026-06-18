@@ -176,11 +176,7 @@ export const Header: FC = memo(() => {
               <Drawer.Header borderBottom="1px solid" borderColor="gray.100">
                 <Drawer.Title>
                   <Flex align="center" gap={3}>
-                    <LogoIcon
-                      boxSize={9}
-                      bg="teal.500"
-                      color="white"
-                    />
+                    <LogoIcon boxSize={9} bg="teal.500" color="white" />
                     <Box>
                       <Text fontWeight="bold" color="gray.500">
                         Meal Tracking
@@ -190,19 +186,6 @@ export const Header: FC = memo(() => {
                 </Drawer.Title>
               </Drawer.Header>
               <Drawer.Body pt={5}>
-                <Button
-                  w="100%"
-                  mb={3}
-                  justifyContent="flex-start"
-                  borderRadius="lg"
-                  colorPalette="teal"
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsMealModalOpen(true);
-                  }}
-                >
-                  ＋ 食事を記録
-                </Button>
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.path;
 
