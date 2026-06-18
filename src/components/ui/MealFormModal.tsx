@@ -293,16 +293,9 @@ const MealFormContent: FC<{ onClose: () => void }> = memo(({ onClose }) => {
               placeholder="食材・気づきなど（任意）"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
-              size="lg"
-              borderRadius="xl"
-              bg="gray.50"
-              borderColor="gray.200"
               minH="100px"
               resize="none"
-              _focus={{
-                borderColor: "teal.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
-              }}
+              {...inputStyle}
             />
           </Box>
         </Stack>

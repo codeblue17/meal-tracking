@@ -15,6 +15,7 @@ import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { LogoIcon } from "../components/ui/LogoIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
+import { inputStyle } from "@/styles/formStyles";
 
 export const Login: FC = memo(() => {
   const { signIn } = useAuth();
@@ -71,12 +72,7 @@ export const Login: FC = memo(() => {
           textAlign="left"
         >
           <Box>
-            <LogoIcon
-              boxSize={12}
-              bg="whiteAlpha.300"
-              fontSize="xl"
-              mb={8}
-            />
+            <LogoIcon boxSize={12} bg="whiteAlpha.300" fontSize="xl" mb={8} />
             <Heading
               as="h1"
               color="white"
@@ -139,17 +135,10 @@ export const Login: FC = memo(() => {
               <Input
                 type="email"
                 placeholder="example@email.com"
-                size="lg"
-                borderRadius="xl"
-                bg="gray.50"
-                borderColor="gray.200"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                _focus={{
-                  borderColor: "teal.500",
-                  boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
-                }}
+                {...inputStyle}
               />
             </Box>
             <Box>
@@ -159,17 +148,10 @@ export const Login: FC = memo(() => {
               <Input
                 type="password"
                 placeholder="password"
-                size="lg"
-                borderRadius="xl"
-                bg="gray.50"
-                borderColor="gray.200"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                _focus={{
-                  borderColor: "teal.500",
-                  boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
-                }}
+                {...inputStyle}
               />
             </Box>
             <Flex justify="flex-end">

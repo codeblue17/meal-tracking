@@ -9,3 +9,11 @@ export const formatDisplayDate = (date: Date): string =>
     month: "long",
     day: "numeric",
   });
+
+export const formatGroupDate = (dateStr: string): string =>
+  new Date(`${dateStr}T00:00:00`).toLocaleDateString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
