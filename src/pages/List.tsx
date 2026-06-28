@@ -17,20 +17,8 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
 import type { Meal, MealTime } from "@/types/meal";
+import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
-
-type MealTimeMeta = {
-  label: string;
-  colorPalette: string;
-  order: number;
-};
-
-const MEAL_TIME_META: Record<MealTime, MealTimeMeta> = {
-  breakfast: { label: "朝食", colorPalette: "orange", order: 0 },
-  lunch: { label: "昼食", colorPalette: "teal", order: 1 },
-  dinner: { label: "夕食", colorPalette: "purple", order: 2 },
-  snack: { label: "間食", colorPalette: "pink", order: 3 },
-};
 
 const FILTERS: { value: MealTime | "all"; label: string }[] = [
   { value: "all", label: "すべて" },
