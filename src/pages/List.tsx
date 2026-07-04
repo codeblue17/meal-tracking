@@ -11,7 +11,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { FaRegTrashAlt, FaUtensils } from "react-icons/fa";
+import { FaPen, FaRegTrashAlt, FaUtensils } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
@@ -80,6 +80,7 @@ export const List: FC = memo(() => {
   const [filter, setFilter] = useState<MealTime | "all">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
 
   // データ取得のみを担い、状態更新は呼び出し側（effect / イベントハンドラ）で行う
   const fetchMeals = useCallback(async (): Promise<Meal[]> => {
@@ -280,6 +281,21 @@ export const List: FC = memo(() => {
                         size="sm"
                         variant="ghost"
                         borderRadius="full"
+                        aria-label="編集"
+                        color="gray.400"
+                        onClick={() => {
+                          setEditingMeal(meal);
+                          setIsMealModalOpen(true);
+                        }}
+                        _hover={{ bg: "teal.50", color: "teal.500" }}
+                        flexShrink={0}
+                      >
+                        <FaPen size={13} />
+                      </IconButton>
+                      <IconButton
+                        size="sm"
+                        variant="ghost"
+                        borderRadius="full"
                         aria-label="削除"
                         color="gray.400"
                         loading={deletingId === meal.id}
@@ -300,8 +316,10 @@ export const List: FC = memo(() => {
 
       <MealFormModal
         open={isMealModalOpen}
+        initialMeal={editingMeal ?? undefined}
         onClose={() => {
           setIsMealModalOpen(false);
+          setEditingMeal(null);
           refresh();
         }}
       />

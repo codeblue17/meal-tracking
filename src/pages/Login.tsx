@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import React from "react";
 import type { FC } from "react";
-import { Box, Flex, Input, Link, Text } from "@chakra-ui/react";
+import { Box, Flex, Input, Text } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../components/ui/layout/AuthLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
@@ -73,11 +73,11 @@ export const Login: FC = memo(() => {
           {...inputStyle}
         />
       </Box>
-      <Flex justify="flex-end">
+      {/* <Flex justify="flex-end">
         <Link color="teal.600" fontSize="sm" fontWeight="medium">
           パスワードを忘れた方
         </Link>
-      </Flex>
+      </Flex> */}
       <PrimaryButton type="submit" mt={2} loading={loading}>
         ログイン
       </PrimaryButton>
