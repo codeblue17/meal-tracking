@@ -4,10 +4,12 @@ import {
   Box,
   Button,
   Flex,
+  Grid,
   Heading,
   Input,
   Stack,
   Text,
+  Textarea,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
@@ -16,6 +18,15 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import type { User } from "@supabase/supabase-js";
 import { inputStyle } from "@/styles/formStyles";
+
+const GOAL_TYPES = [
+  { value: "weight_loss", label: "減量" },
+  { value: "weight_gain", label: "増量" },
+  { value: "maintain", label: "健康維持" },
+  { value: "muscle_gain", label: "筋力アップ" },
+] as const;
+
+type GoalType = (typeof GOAL_TYPES)[number]["value"];
 
 const getInitials = (user: User | null) => {
   const name = user?.user_metadata?.full_name as string | undefined;
@@ -39,6 +50,13 @@ export const Profile: FC = memo(() => {
     (user?.user_metadata?.full_name as string) ?? "",
   );
   const [nameLoading, setNameLoading] = useState(false);
+  const [goalType, setGoalType] = useState<GoalType | "">(
+    (user?.user_metadata?.goal_type as GoalType) ?? "",
+  );
+  const [goalDetail, setGoalDetail] = useState<string>(
+    (user?.user_metadata?.goal_detail as string) ?? "",
+  );
+  const [goalLoading, setGoalLoading] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -56,6 +74,26 @@ export const Profile: FC = memo(() => {
       toaster.create({ title: "更新に失敗しました", type: "error" });
     } finally {
       setNameLoading(false);
+    }
+  };
+
+  const handleSaveGoal = async () => {
+    if (!goalType) {
+      toaster.create({ title: "目標タイプを選択してください", type: "error" });
+      return;
+    }
+    if (!supabase) return;
+    setGoalLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { goal_type: goalType, goal_detail: goalDetail.trim() },
+      });
+      if (error) throw error;
+      toaster.create({ title: "目標を保存しました", type: "success" });
+    } catch {
+      toaster.create({ title: "目標の保存に失敗しました", type: "error" });
+    } finally {
+      setGoalLoading(false);
     }
   };
 
@@ -196,6 +234,64 @@ export const Profile: FC = memo(() => {
                 保存
               </PrimaryButton>
             </Flex>
+          </Box>
+
+          {/* 目標設定 */}
+          <Box
+            px={{ base: 6, md: 12 }}
+            py={8}
+            borderBottom="1px solid"
+            borderColor="gray.100"
+          >
+            <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
+              目標設定
+            </Text>
+            <Stack gap={4}>
+              <Box>
+                <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                  目標タイプ
+                </Text>
+                <Grid templateColumns="repeat(4, 1fr)" gap={2}>
+                  {GOAL_TYPES.map((item) => {
+                    const isSelected = goalType === item.value;
+                    return (
+                      <Button
+                        key={item.value}
+                        size="md"
+                        borderRadius="xl"
+                        variant={isSelected ? "solid" : "outline"}
+                        colorPalette={isSelected ? "teal" : "gray"}
+                        onClick={() => setGoalType(item.value)}
+                        type="button"
+                        fontWeight={isSelected ? "semibold" : "medium"}
+                      >
+                        {item.label}
+                      </Button>
+                    );
+                  })}
+                </Grid>
+              </Box>
+              <Box>
+                <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
+                  具体的な目標
+                </Text>
+                <Textarea
+                  placeholder="例: 3ヶ月で体重を3kg減らす（任意）"
+                  value={goalDetail}
+                  onChange={(e) => setGoalDetail(e.target.value)}
+                  minH="100px"
+                  resize="none"
+                  {...inputStyle}
+                />
+              </Box>
+              <PrimaryButton
+                loading={goalLoading}
+                onClick={handleSaveGoal}
+                mt={1}
+              >
+                目標を保存する
+              </PrimaryButton>
+            </Stack>
           </Box>
 
           {/* パスワード変更 */}
