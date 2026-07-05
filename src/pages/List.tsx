@@ -20,6 +20,8 @@ import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
 
+const PAGE_SIZE = 10;
+
 const FILTERS: { value: MealTime | "all"; label: string }[] = [
   { value: "all", label: "すべて" },
   { value: "breakfast", label: "朝食" },
@@ -78,6 +80,7 @@ export const List: FC = memo(() => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(Boolean(supabase && user));
   const [filter, setFilter] = useState<MealTime | "all">("all");
+  const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
@@ -135,11 +138,32 @@ export const List: FC = memo(() => {
     }
   };
 
-  const filteredGroups = useMemo(() => {
+  // 表示順（日付降順→時間帯順）に並べてからページ分を切り出す
+  const filteredMeals = useMemo(() => {
     const filtered =
       filter === "all" ? meals : meals.filter((m) => m.meal_time === filter);
-    return groupByDate(filtered);
+    return [...filtered].sort((a, b) => {
+      if (a.eaten_at !== b.eaten_at) return a.eaten_at < b.eaten_at ? 1 : -1;
+      return (
+        MEAL_TIME_META[a.meal_time].order - MEAL_TIME_META[b.meal_time].order
+      );
+    });
   }, [meals, filter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredMeals.length / PAGE_SIZE));
+  // 削除などで件数が減った場合もページ範囲内に収める
+  const currentPage = Math.min(page, totalPages);
+
+  const pagedGroups = useMemo(
+    () =>
+      groupByDate(
+        filteredMeals.slice(
+          (currentPage - 1) * PAGE_SIZE,
+          currentPage * PAGE_SIZE,
+        ),
+      ),
+    [filteredMeals, currentPage],
+  );
 
   return (
     <Box
@@ -182,7 +206,10 @@ export const List: FC = memo(() => {
                 borderRadius="full"
                 variant={isActive ? "solid" : "outline"}
                 colorPalette={isActive ? "teal" : "gray"}
-                onClick={() => setFilter(item.value)}
+                onClick={() => {
+                  setFilter(item.value);
+                  setPage(1);
+                }}
                 fontWeight={isActive ? "semibold" : "medium"}
                 flexShrink={0}
               >
@@ -197,7 +224,7 @@ export const List: FC = memo(() => {
           <Flex justify="center" py={20}>
             <Spinner size="lg" color="teal.500" borderWidth="3px" />
           </Flex>
-        ) : filteredGroups.length === 0 ? (
+        ) : filteredMeals.length === 0 ? (
           <Flex
             direction="column"
             align="center"
@@ -231,86 +258,130 @@ export const List: FC = memo(() => {
             </Text>
           </Flex>
         ) : (
-          <Stack gap={8}>
-            {filteredGroups.map((group) => (
-              <Box key={group.date}>
-                <Text
-                  fontSize="sm"
-                  fontWeight="semibold"
-                  color="gray.500"
-                  mb={3}
-                  px={1}
-                >
-                  {formatGroupDate(group.date)}
-                </Text>
-                <Stack gap={3}>
-                  {group.meals.map((meal) => (
-                    <Flex
-                      key={meal.id}
-                      align="center"
-                      gap={4}
-                      bg="white"
-                      borderRadius="2xl"
-                      border="1px solid"
-                      borderColor="gray.100"
-                      boxShadow="0 8px 24px rgba(15, 23, 42, 0.05)"
-                      px={{ base: 4, md: 5 }}
-                      py={4}
-                      transition="all 0.2s ease"
-                      _hover={{
-                        boxShadow: "0 12px 32px rgba(15, 23, 42, 0.09)",
-                      }}
-                    >
-                      <MealTimeBadge mealTime={meal.meal_time} />
-                      <Box flex={1} minW={0}>
-                        <Text color="gray.900" fontWeight="semibold" truncate>
-                          {meal.name}
-                        </Text>
-                        {meal.memo && (
-                          <Text
-                            fontSize="sm"
-                            color="gray.500"
-                            mt={0.5}
-                            lineClamp={2}
-                          >
-                            {meal.memo}
-                          </Text>
-                        )}
-                      </Box>
-                      <IconButton
-                        size="sm"
-                        variant="ghost"
-                        borderRadius="full"
-                        aria-label="編集"
-                        color="gray.400"
-                        onClick={() => {
-                          setEditingMeal(meal);
-                          setIsMealModalOpen(true);
+          <>
+            <Stack gap={8}>
+              {pagedGroups.map((group) => (
+                <Box key={group.date}>
+                  <Text
+                    fontSize="sm"
+                    fontWeight="semibold"
+                    color="gray.500"
+                    mb={3}
+                    px={1}
+                  >
+                    {formatGroupDate(group.date)}
+                  </Text>
+                  <Stack gap={3}>
+                    {group.meals.map((meal) => (
+                      <Flex
+                        key={meal.id}
+                        align="center"
+                        gap={4}
+                        bg="white"
+                        borderRadius="2xl"
+                        border="1px solid"
+                        borderColor="gray.100"
+                        boxShadow="0 8px 24px rgba(15, 23, 42, 0.05)"
+                        px={{ base: 4, md: 5 }}
+                        py={4}
+                        transition="all 0.2s ease"
+                        _hover={{
+                          boxShadow: "0 12px 32px rgba(15, 23, 42, 0.09)",
                         }}
-                        _hover={{ bg: "teal.50", color: "teal.500" }}
-                        flexShrink={0}
                       >
-                        <FaPen size={13} />
-                      </IconButton>
-                      <IconButton
-                        size="sm"
-                        variant="ghost"
-                        borderRadius="full"
-                        aria-label="削除"
-                        color="gray.400"
-                        loading={deletingId === meal.id}
-                        onClick={() => handleDelete(meal.id)}
-                        _hover={{ bg: "red.50", color: "red.500" }}
-                        flexShrink={0}
-                      >
-                        <FaRegTrashAlt size={15} />
-                      </IconButton>
-                    </Flex>
-                  ))}
-                </Stack>
-              </Box>
-            ))}
-          </Stack>
+                        <MealTimeBadge mealTime={meal.meal_time} />
+                        <Box flex={1} minW={0}>
+                          <Text color="gray.900" fontWeight="semibold" truncate>
+                            {meal.name}
+                          </Text>
+                          {meal.memo && (
+                            <Text
+                              fontSize="sm"
+                              color="gray.500"
+                              mt={0.5}
+                              lineClamp={2}
+                            >
+                              {meal.memo}
+                            </Text>
+                          )}
+                        </Box>
+                        <IconButton
+                          size="sm"
+                          variant="ghost"
+                          borderRadius="full"
+                          aria-label="編集"
+                          color="gray.400"
+                          onClick={() => {
+                            setEditingMeal(meal);
+                            setIsMealModalOpen(true);
+                          }}
+                          _hover={{ bg: "teal.50", color: "teal.500" }}
+                          flexShrink={0}
+                        >
+                          <FaPen size={13} />
+                        </IconButton>
+                        <IconButton
+                          size="sm"
+                          variant="ghost"
+                          borderRadius="full"
+                          aria-label="削除"
+                          color="gray.400"
+                          loading={deletingId === meal.id}
+                          onClick={() => handleDelete(meal.id)}
+                          _hover={{ bg: "red.50", color: "red.500" }}
+                          flexShrink={0}
+                        >
+                          <FaRegTrashAlt size={15} />
+                        </IconButton>
+                      </Flex>
+                    ))}
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
+
+            {/* ページャー */}
+            {totalPages > 1 && (
+              <HStack justify="center" gap={2} mt={8}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage(currentPage - 1)}
+                >
+                  前へ
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNumber) => (
+                    <Button
+                      key={pageNumber}
+                      size="sm"
+                      borderRadius="full"
+                      variant={pageNumber === currentPage ? "solid" : "ghost"}
+                      colorPalette={
+                        pageNumber === currentPage ? "teal" : "gray"
+                      }
+                      onClick={() => setPage(pageNumber)}
+                    >
+                      {pageNumber}
+                    </Button>
+                  ),
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  colorPalette="gray"
+                  borderRadius="full"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage(currentPage + 1)}
+                >
+                  次へ
+                </Button>
+              </HStack>
+            )}
+          </>
         )}
       </Box>
 
