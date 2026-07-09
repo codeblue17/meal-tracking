@@ -3,6 +3,7 @@ import type { FC } from "react";
 import {
   Box,
   Button,
+  Dialog,
   Flex,
   Grid,
   Heading,
@@ -60,6 +61,8 @@ export const Profile: FC = memo(() => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleSaveName = async () => {
     if (!supabase) return;
@@ -125,6 +128,21 @@ export const Profile: FC = memo(() => {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!supabase) return;
+    setDeleteLoading(true);
+    try {
+      const { error } = await supabase.rpc("delete_user");
+      if (error) throw error;
+      await signOut();
+      toaster.create({ title: "退会が完了しました", type: "success" });
+      navigate("/");
+    } catch {
+      toaster.create({ title: "退会処理に失敗しました", type: "error" });
+      setDeleteLoading(false);
+    }
   };
 
 
@@ -344,25 +362,95 @@ export const Profile: FC = memo(() => {
             <Text color="teal.600" fontWeight="semibold" fontSize="sm" mb={5}>
               アカウント操作
             </Text>
-            <Button
-              size="lg"
-              borderRadius="xl"
-              variant="outline"
-              color="red.500"
-              borderColor="red.200"
-              w="full"
-              onClick={handleSignOut}
-              _hover={{
-                bg: "red.50",
-                borderColor: "red.300",
-                color: "red.600",
-              }}
-            >
-              サインアウト
-            </Button>
+            <Stack gap={3}>
+              <Button
+                size="lg"
+                borderRadius="xl"
+                variant="outline"
+                color="red.500"
+                borderColor="red.200"
+                w="full"
+                onClick={handleSignOut}
+                _hover={{
+                  bg: "red.50",
+                  borderColor: "red.300",
+                  color: "red.600",
+                }}
+              >
+                サインアウト
+              </Button>
+              <Button
+                size="lg"
+                borderRadius="xl"
+                variant="ghost"
+                color="gray.400"
+                w="full"
+                onClick={() => setDeleteOpen(true)}
+                _hover={{ bg: "red.50", color: "red.600" }}
+              >
+                退会する
+              </Button>
+            </Stack>
           </Box>
         </Box>
       </Box>
+
+      {/* 退会確認ダイアログ */}
+      <Dialog.Root
+        open={deleteOpen}
+        onOpenChange={(e) => !e.open && setDeleteOpen(false)}
+        role="alertdialog"
+      >
+        <Dialog.Backdrop bg="blackAlpha.400" />
+        <Dialog.Positioner>
+          <Dialog.Content
+            borderRadius="2xl"
+            boxShadow="0 24px 70px rgba(15, 23, 42, 0.16)"
+            border="1px solid"
+            borderColor="gray.100"
+            maxW="480px"
+            w="full"
+            mx={4}
+          >
+            <Dialog.Header
+              borderBottom="1px solid"
+              borderColor="gray.100"
+              pb={4}
+            >
+              <Dialog.Title color="red.600" fontSize="lg">
+                本当に退会しますか？
+              </Dialog.Title>
+            </Dialog.Header>
+            <Dialog.Body py={6}>
+              <Text fontSize="sm" color="gray.700" mb={3}>
+                退会すると、以下のデータがすべて削除されます。この操作は取り消せません。
+              </Text>
+              <Stack gap={1} fontSize="sm" color="gray.600">
+                <Text>・アカウント情報（メールアドレス・表示名・目標設定）</Text>
+                <Text>・これまでに記録したすべての食事データ</Text>
+              </Stack>
+            </Dialog.Body>
+            <Dialog.Footer borderTop="1px solid" borderColor="gray.100" pt={4}>
+              <Button
+                variant="outline"
+                borderRadius="xl"
+                onClick={() => setDeleteOpen(false)}
+                disabled={deleteLoading}
+              >
+                キャンセル
+              </Button>
+              <Button
+                colorPalette="red"
+                borderRadius="xl"
+                loading={deleteLoading}
+                onClick={handleDeleteAccount}
+              >
+                退会する
+              </Button>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
     </Box>
   );
 });
