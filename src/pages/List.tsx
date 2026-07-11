@@ -7,6 +7,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  Input,
   Spinner,
   Stack,
   Text,
@@ -55,6 +56,63 @@ const groupByDate = (meals: Meal[]): DateGroup[] => {
     }));
 };
 
+// 空の date input はブラウザ標準の「yyyy/mm/dd」が出て見栄えが悪いため、
+// 未入力かつ非フォーカス時は日付テキストを透明にし、プレースホルダーを重ねて表示する
+const DateFilterInput: FC<{
+  value: string;
+  placeholder: string;
+  min?: string;
+  max?: string;
+  onChange: (value: string) => void;
+}> = ({ value, placeholder, min, max, onChange }) => {
+  const [focused, setFocused] = useState(false);
+  const showPlaceholder = !value && !focused;
+  return (
+    <Box position="relative" w="170px" flexShrink={0}>
+      <Input
+        type="date"
+        size="sm"
+        bg="white"
+        borderRadius="lg"
+        borderColor="gray.200"
+        color={showPlaceholder ? "transparent" : "gray.900"}
+        cursor="pointer"
+        value={value}
+        min={min}
+        max={max}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        onClick={(e) => {
+          // 年・月・日のテキスト部分をクリックしてもカレンダーが開くようにする
+          try {
+            e.currentTarget.showPicker();
+          } catch {
+            // showPicker 未対応ブラウザでは標準の挙動に任せる
+          }
+        }}
+        _focus={{
+          borderColor: "teal.500",
+          boxShadow: "0 0 0 1px var(--chakra-colors-teal-500)",
+        }}
+      />
+      {showPlaceholder && (
+        <Text
+          position="absolute"
+          top="50%"
+          left={3}
+          transform="translateY(-50%)"
+          fontSize="sm"
+          color="gray.400"
+          pointerEvents="none"
+        >
+          {placeholder}
+        </Text>
+      )}
+    </Box>
+  );
+};
+
 const MealTimeBadge: FC<{ mealTime: MealTime }> = ({ mealTime }) => {
   const meta = MEAL_TIME_META[mealTime];
   return (
@@ -79,7 +137,9 @@ export const List: FC = memo(() => {
   const { user } = useAuth();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(Boolean(supabase && user));
-  const [filter, setFilter] = useState<MealTime | "all">("all");
+  const [mealTimeFilter, setMealTimeFilter] = useState<MealTime | "all">("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
@@ -140,15 +200,20 @@ export const List: FC = memo(() => {
 
   // 表示順（日付降順→時間帯順）に並べてからページ分を切り出す
   const filteredMeals = useMemo(() => {
-    const filtered =
-      filter === "all" ? meals : meals.filter((m) => m.meal_time === filter);
+    // eaten_at は YYYY-MM-DD 形式のため文字列比較で範囲判定できる
+    const filtered = meals.filter(
+      (m) =>
+        (mealTimeFilter === "all" || m.meal_time === mealTimeFilter) &&
+        (!dateFrom || m.eaten_at >= dateFrom) &&
+        (!dateTo || m.eaten_at <= dateTo),
+    );
     return [...filtered].sort((a, b) => {
       if (a.eaten_at !== b.eaten_at) return a.eaten_at < b.eaten_at ? 1 : -1;
       return (
         MEAL_TIME_META[a.meal_time].order - MEAL_TIME_META[b.meal_time].order
       );
     });
-  }, [meals, filter]);
+  }, [meals, mealTimeFilter, dateFrom, dateTo]);
 
   const totalPages = Math.max(1, Math.ceil(filteredMeals.length / PAGE_SIZE));
   // 削除などで件数が減った場合もページ範囲内に収める
@@ -198,7 +263,7 @@ export const List: FC = memo(() => {
         {/* 時間帯フィルタ */}
         <HStack gap={2} mb={6} overflowX="auto" pb={1}>
           {FILTERS.map((item) => {
-            const isActive = filter === item.value;
+            const isActive = mealTimeFilter === item.value;
             return (
               <Button
                 key={item.value}
@@ -207,7 +272,7 @@ export const List: FC = memo(() => {
                 variant={isActive ? "solid" : "outline"}
                 colorPalette={isActive ? "teal" : "gray"}
                 onClick={() => {
-                  setFilter(item.value);
+                  setMealTimeFilter(item.value);
                   setPage(1);
                 }}
                 fontWeight={isActive ? "semibold" : "medium"}
@@ -218,6 +283,46 @@ export const List: FC = memo(() => {
             );
           })}
         </HStack>
+
+        {/* 日付フィルタ */}
+        <Flex align="center" gap={2} mb={6} wrap="wrap">
+          <DateFilterInput
+            value={dateFrom}
+            placeholder="開始日"
+            max={dateTo || undefined}
+            onChange={(value) => {
+              setDateFrom(value);
+              setPage(1);
+            }}
+          />
+          <Text fontSize="sm" color="gray.500" flexShrink={0}>
+            〜
+          </Text>
+          <DateFilterInput
+            value={dateTo}
+            placeholder="終了日"
+            min={dateFrom || undefined}
+            onChange={(value) => {
+              setDateTo(value);
+              setPage(1);
+            }}
+          />
+          {(dateFrom || dateTo) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              colorPalette="gray"
+              borderRadius="full"
+              onClick={() => {
+                setDateFrom("");
+                setDateTo("");
+                setPage(1);
+              }}
+            >
+              クリア
+            </Button>
+          )}
+        </Flex>
 
         {/* 本体 */}
         {loading ? (
@@ -249,9 +354,9 @@ export const List: FC = memo(() => {
               <FaUtensils size={22} />
             </Flex>
             <Text color="gray.700" fontWeight="semibold" mb={1}>
-              {filter === "all"
+              {mealTimeFilter === "all" && !dateFrom && !dateTo
                 ? "まだ食事の記録がありません"
-                : "この時間帯の記録はありません"}
+                : "条件に一致する記録はありません"}
             </Text>
             <Text fontSize="sm" color="gray.500">
               「食事を記録」から最初の記録を追加しましょう
