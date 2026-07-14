@@ -78,12 +78,12 @@ const CalendarPicker: FC<CalendarPickerProps> = ({ value, onChange }) => {
           borderRadius="full"
           aria-label="前の月"
           onClick={prevMonth}
-          color="gray.300"
+          color="gray.600"
           _hover={{ bg: "gray.100", color: "gray.700" }}
         >
           <FaChevronLeft size={11} />
         </IconButton>
-        <Text fontWeight="semibold" color="gray.300" fontSize="sm">
+        <Text fontWeight="semibold" color="gray.600" fontSize="sm">
           {viewYear}年{viewMonth + 1}月
         </Text>
         <IconButton
@@ -92,7 +92,7 @@ const CalendarPicker: FC<CalendarPickerProps> = ({ value, onChange }) => {
           borderRadius="full"
           aria-label="次の月"
           onClick={nextMonth}
-          color="gray.300"
+          color="gray.600"
           _hover={{ bg: "gray.100", color: "gray.700" }}
         >
           <FaChevronRight size={11} />
@@ -214,7 +214,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
         <Dialog.Body py={6}>
           <Stack as="form" id="meal-form" onSubmit={handleSubmit} gap={5}>
             <Box>
-              <Text color="gray.300" fontSize="sm" fontWeight="medium" mb={2}>
+              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
                 食事名{" "}
               </Text>
               <Input
@@ -227,7 +227,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
             </Box>
 
             <Box>
-              <Text color="gray.300" fontSize="sm" fontWeight="medium" mb={2}>
+              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
                 時間帯
               </Text>
               <Grid templateColumns="repeat(4, 1fr)" gap={2}>
@@ -252,7 +252,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
             </Box>
 
             <Box>
-              <Text color="gray.300" fontSize="sm" fontWeight="medium" mb={2}>
+              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
                 日付
               </Text>
               <Popover.Root
@@ -311,7 +311,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
             </Box>
 
             <Box>
-              <Text color="gray.300" fontSize="sm" fontWeight="medium" mb={2}>
+              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
                 メモ
               </Text>
               <Textarea
@@ -363,6 +363,7 @@ export const MealFormModal: FC<Props> = memo(
         <Dialog.Backdrop bg="blackAlpha.400" />
         <Dialog.Positioner>
           <Dialog.Content
+            bg="gray.50"
             borderRadius="2xl"
             boxShadow="0 24px 70px rgba(15, 23, 42, 0.16)"
             border="1px solid"
@@ -376,7 +377,7 @@ export const MealFormModal: FC<Props> = memo(
               borderColor="gray.100"
               pb={4}
             >
-              <Dialog.Title color="gray.300" fontSize="lg">
+              <Dialog.Title color="gray.800" fontSize="lg">
                 {isEdit ? "食事を編集" : "食事を記録"}
               </Dialog.Title>
             </Dialog.Header>
