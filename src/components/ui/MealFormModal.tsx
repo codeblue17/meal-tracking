@@ -29,6 +29,9 @@ type Props = {
   initialMeal?: Meal;
 };
 
+const MEAL_NAME_MAX_LENGTH = 100;
+const MEAL_MEMO_MAX_LENGTH = 500;
+
 const MEAL_TIMES: { value: MealTime; label: string }[] = [
   { value: "breakfast", label: "朝食" },
   { value: "lunch", label: "昼食" },
@@ -173,16 +176,36 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
     const handleSubmit = async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
       if (!supabase || !user) return;
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        toaster.create({ title: "食事名を入力してください", type: "error" });
+        return;
+      }
+      if (trimmedName.length > MEAL_NAME_MAX_LENGTH) {
+        toaster.create({
+          title: `食事名は${MEAL_NAME_MAX_LENGTH}文字以内で入力してください`,
+          type: "error",
+        });
+        return;
+      }
+      const trimmedMemo = memo.trim();
+      if (trimmedMemo.length > MEAL_MEMO_MAX_LENGTH) {
+        toaster.create({
+          title: `メモは${MEAL_MEMO_MAX_LENGTH}文字以内で入力してください`,
+          type: "error",
+        });
+        return;
+      }
       setLoading(true);
       try {
         if (isEdit && initialMeal) {
           const { error } = await supabase
             .from("meals")
             .update({
-              name: name.trim(),
+              name: trimmedName,
               meal_time: mealTime,
               eaten_at: toDateStr(eatenDate),
-              memo: memo.trim() || null,
+              memo: trimmedMemo || null,
             })
             .eq("id", initialMeal.id);
           if (error) throw error;
@@ -222,6 +245,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                maxLength={MEAL_NAME_MAX_LENGTH}
                 {...inputStyle}
               />
             </Box>
@@ -318,6 +342,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
                 placeholder="食材・気づきなど（任意）"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
+                maxLength={MEAL_MEMO_MAX_LENGTH}
                 minH="100px"
                 resize="none"
                 {...inputStyle}

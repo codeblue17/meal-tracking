@@ -20,6 +20,9 @@ import { toaster } from "@/components/ui/toaster-instance";
 import type { User } from "@supabase/supabase-js";
 import { inputStyle } from "@/styles/formStyles";
 
+const DISPLAY_NAME_MAX_LENGTH = 20;
+const GOAL_DETAIL_MAX_LENGTH = 200;
+
 const GOAL_TYPES = [
   { value: "weight_loss", label: "減量" },
   { value: "weight_gain", label: "増量" },
@@ -66,10 +69,18 @@ export const Profile: FC = memo(() => {
 
   const handleSaveName = async () => {
     if (!supabase) return;
+    const trimmedName = displayName.trim();
+    if (trimmedName.length > DISPLAY_NAME_MAX_LENGTH) {
+      toaster.create({
+        title: `表示名は${DISPLAY_NAME_MAX_LENGTH}文字以内で入力してください`,
+        type: "error",
+      });
+      return;
+    }
     setNameLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: displayName.trim() },
+        data: { full_name: trimmedName },
       });
       if (error) throw error;
       toaster.create({ title: "表示名を更新しました", type: "success" });
@@ -86,10 +97,18 @@ export const Profile: FC = memo(() => {
       return;
     }
     if (!supabase) return;
+    const trimmedGoalDetail = goalDetail.trim();
+    if (trimmedGoalDetail.length > GOAL_DETAIL_MAX_LENGTH) {
+      toaster.create({
+        title: `具体的な目標は${GOAL_DETAIL_MAX_LENGTH}文字以内で入力してください`,
+        type: "error",
+      });
+      return;
+    }
     setGoalLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({
-        data: { goal_type: goalType, goal_detail: goalDetail.trim() },
+        data: { goal_type: goalType, goal_detail: trimmedGoalDetail },
       });
       if (error) throw error;
       toaster.create({ title: "目標を保存しました", type: "success" });
@@ -241,6 +260,7 @@ export const Profile: FC = memo(() => {
                 placeholder="表示名を入力"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                maxLength={DISPLAY_NAME_MAX_LENGTH}
                 {...inputStyle}
               />
               <PrimaryButton
@@ -297,6 +317,7 @@ export const Profile: FC = memo(() => {
                   placeholder="例: 3ヶ月で体重を3kg減らす（任意）"
                   value={goalDetail}
                   onChange={(e) => setGoalDetail(e.target.value)}
+                  maxLength={GOAL_DETAIL_MAX_LENGTH}
                   minH="100px"
                   resize="none"
                   {...inputStyle}
