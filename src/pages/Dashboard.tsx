@@ -333,9 +333,19 @@ export const Dashboard: FC = memo(() => {
                 さん
               </Heading>
               <Text mt={3} fontSize="sm" color="whiteAlpha.900" maxW="380px">
-                {stats.todayCount > 0
-                  ? `今日はすでに ${stats.todayCount} 件記録しています。この調子で続けましょう。`
-                  : "今日の食事をまだ記録していません。最初の一品を記録しましょう。"}
+                {stats.todayCount > 0 ? (
+                  <>
+                    今日はすでに {stats.todayCount} 件記録しています。
+                    <br />
+                    この調子で続けましょう。
+                  </>
+                ) : (
+                  <>
+                    今日の食事をまだ記録していません。
+                    <br />
+                    最初の一品を記録しましょう。
+                  </>
+                )}
               </Text>
             </Box>
 
