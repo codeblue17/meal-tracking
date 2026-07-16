@@ -7,5 +7,6 @@ export type Meal = {
   meal_time: MealTime;
   eaten_at: string;
   memo: string | null;
+  image_path: string | null;
   created_at: string;
 };

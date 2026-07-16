@@ -17,9 +17,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
+import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
+import { deleteMealImage } from "@/utils/imageUpload";
 
 const PAGE_SIZE = 10;
 
@@ -183,13 +185,17 @@ export const List: FC = memo(() => {
       });
   }, [fetchMeals]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (meal: Meal) => {
     if (!supabase) return;
-    setDeletingId(id);
+    setDeletingId(meal.id);
     try {
-      const { error } = await supabase.from("meals").delete().eq("id", id);
+      const { error } = await supabase
+        .from("meals")
+        .delete()
+        .eq("id", meal.id);
       if (error) throw error;
-      setMeals((prev) => prev.filter((m) => m.id !== id));
+      if (meal.image_path) await deleteMealImage(meal.image_path);
+      setMeals((prev) => prev.filter((m) => m.id !== meal.id));
       toaster.create({ title: "削除しました", type: "success" });
     } catch {
       toaster.create({ title: "削除に失敗しました", type: "error" });
@@ -394,6 +400,7 @@ export const List: FC = memo(() => {
                           boxShadow: "0 12px 32px rgba(15, 23, 42, 0.09)",
                         }}
                       >
+                        <MealThumbnail imagePath={meal.image_path} />
                         <MealTimeBadge mealTime={meal.meal_time} />
                         <Box flex={1} minW={0}>
                           <Text color="gray.900" fontWeight="semibold" truncate>
@@ -432,7 +439,7 @@ export const List: FC = memo(() => {
                           aria-label="削除"
                           color="gray.400"
                           loading={deletingId === meal.id}
-                          onClick={() => handleDelete(meal.id)}
+                          onClick={() => handleDelete(meal)}
                           _hover={{ bg: "red.50", color: "red.500" }}
                           flexShrink={0}
                         >

@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useRef, useState } from "react";
 import type { FC } from "react";
 import {
   Box,
@@ -8,13 +8,20 @@ import {
   Flex,
   Grid,
   IconButton,
+  Image,
   Input,
   Popover,
   Stack,
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaCamera,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTimes,
+} from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
@@ -22,6 +29,13 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import type { Meal, MealTime } from "@/types/meal";
 import { inputStyle } from "@/styles/formStyles";
 import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
+import {
+  deleteMealImage,
+  getMealImageUrl,
+  isImageFile,
+  MAX_IMAGE_FILE_SIZE,
+  uploadMealImage,
+} from "@/utils/imageUpload";
 
 type Props = {
   open: boolean;
@@ -173,6 +187,45 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
     const [memo, setMemo] = useState(initialMeal?.memo ?? "");
     const [loading, setLoading] = useState(false);
 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [removeExistingImage, setRemoveExistingImage] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(
+      initialMeal?.image_path ? getMealImageUrl(initialMeal.image_path) : null,
+    );
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      if (!file) return;
+      if (!isImageFile(file)) {
+        toaster.create({ title: "画像ファイルを選択してください", type: "error" });
+        return;
+      }
+      if (file.size > MAX_IMAGE_FILE_SIZE) {
+        toaster.create({
+          title: "画像サイズは10MB以内にしてください",
+          type: "error",
+        });
+        return;
+      }
+      setImagePreview((prev) => {
+        if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+        return URL.createObjectURL(file);
+      });
+      setImageFile(file);
+      setRemoveExistingImage(false);
+    };
+
+    const handleRemoveImage = () => {
+      setImagePreview((prev) => {
+        if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+        return null;
+      });
+      setImageFile(null);
+      setRemoveExistingImage(true);
+    };
+
     const handleSubmit = async (e: React.BaseSyntheticEvent) => {
       e.preventDefault();
       if (!supabase || !user) return;
@@ -198,6 +251,13 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
       }
       setLoading(true);
       try {
+        let imagePath = initialMeal?.image_path ?? null;
+        if (imageFile) {
+          imagePath = await uploadMealImage(user.id, imageFile);
+        } else if (removeExistingImage) {
+          imagePath = null;
+        }
+
         if (isEdit && initialMeal) {
           const { error } = await supabase
             .from("meals")
@@ -206,9 +266,13 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
               meal_time: mealTime,
               eaten_at: toDateStr(eatenDate),
               memo: trimmedMemo || null,
+              image_path: imagePath,
             })
             .eq("id", initialMeal.id);
           if (error) throw error;
+          if (initialMeal.image_path && initialMeal.image_path !== imagePath) {
+            await deleteMealImage(initialMeal.image_path);
+          }
           toaster.create({ title: "食事を更新しました", type: "success" });
         } else {
           const { error } = await supabase.from("meals").insert({
@@ -217,6 +281,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
             meal_time: mealTime,
             eaten_at: toDateStr(eatenDate),
             memo: trimmedMemo || null,
+            image_path: imagePath,
           });
           if (error) throw error;
           toaster.create({ title: "食事を記録しました", type: "success" });
@@ -247,6 +312,72 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
                 required
                 maxLength={MEAL_NAME_MAX_LENGTH}
                 {...inputStyle}
+              />
+            </Box>
+
+            <Box>
+              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
+                写真
+              </Text>
+              <Box
+                position="relative"
+                w="full"
+                h="160px"
+                borderRadius="xl"
+                border="1px dashed"
+                borderColor="gray.200"
+                bg="gray.50"
+                overflow="hidden"
+                cursor="pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {imagePreview ? (
+                  <>
+                    <Image
+                      src={imagePreview}
+                      alt=""
+                      w="full"
+                      h="full"
+                      objectFit="cover"
+                    />
+                    <IconButton
+                      size="xs"
+                      borderRadius="full"
+                      position="absolute"
+                      top={2}
+                      right={2}
+                      aria-label="写真を削除"
+                      bg="blackAlpha.600"
+                      color="white"
+                      _hover={{ bg: "blackAlpha.700" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveImage();
+                      }}
+                    >
+                      <FaTimes size={12} />
+                    </IconButton>
+                  </>
+                ) : (
+                  <Flex
+                    direction="column"
+                    align="center"
+                    justify="center"
+                    h="full"
+                    color="gray.400"
+                    gap={1.5}
+                  >
+                    <FaCamera size={20} />
+                    <Text fontSize="xs">タップして写真を追加</Text>
+                  </Flex>
+                )}
+              </Box>
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                display="none"
+                onChange={handleFileChange}
               />
             </Box>
 

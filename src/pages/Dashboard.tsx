@@ -28,6 +28,7 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { MealFormModal } from "@/components/ui/MealFormModal";
+import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import type { Meal } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
@@ -416,6 +417,8 @@ export const Dashboard: FC = memo(() => {
                 {stats.todaySlots.map(({ mealTime, meals: slotMeals }) => {
                   const meta = MEAL_TIME_META[mealTime];
                   const filled = slotMeals.length > 0;
+                  const slotImagePath =
+                    slotMeals.find((m) => m.image_path)?.image_path ?? null;
                   return (
                     <Flex
                       key={mealTime}
@@ -447,6 +450,9 @@ export const Dashboard: FC = memo(() => {
                       >
                         {meta.label}
                       </Flex>
+                      {filled && (
+                        <MealThumbnail imagePath={slotImagePath} size="36px" />
+                      )}
                       <Box flex={1} minW={0}>
                         {filled ? (
                           <Text color="gray.900" fontWeight="semibold" truncate>
@@ -660,6 +666,7 @@ export const Dashboard: FC = memo(() => {
                           bg={`${meta.colorPalette}.400`}
                           flexShrink={0}
                         />
+                        <MealThumbnail imagePath={meal.image_path} size="32px" />
                         <Text
                           color="gray.800"
                           fontSize="sm"
