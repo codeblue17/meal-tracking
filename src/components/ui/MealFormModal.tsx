@@ -213,10 +213,10 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
         } else {
           const { error } = await supabase.from("meals").insert({
             user_id: user.id,
-            name: name.trim(),
+            name: trimmedName,
             meal_time: mealTime,
             eaten_at: toDateStr(eatenDate),
-            memo: memo.trim() || null,
+            memo: trimmedMemo || null,
           });
           if (error) throw error;
           toaster.create({ title: "食事を記録しました", type: "success" });
