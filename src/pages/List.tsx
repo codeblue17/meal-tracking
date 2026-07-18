@@ -3,13 +3,10 @@ import type { FC } from "react";
 import {
   Box,
   Button,
-  CloseButton,
-  Dialog,
   Flex,
   Heading,
   HStack,
   IconButton,
-  Image,
   Input,
   Spinner,
   Stack,
@@ -21,6 +18,7 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
 import { MealThumbnail } from "@/components/ui/MealThumbnail";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
@@ -521,45 +519,10 @@ export const List: FC = memo(() => {
         }}
       />
 
-      <Dialog.Root
-        open={Boolean(previewImageUrl)}
-        onOpenChange={(e) => !e.open && setPreviewImageUrl(null)}
-      >
-        <Dialog.Backdrop bg="blackAlpha.700" />
-        <Dialog.Positioner>
-          <Dialog.Content
-            bg="transparent"
-            boxShadow="none"
-            maxW="90vw"
-            w="auto"
-            position="relative"
-          >
-            <Dialog.CloseTrigger asChild>
-              <CloseButton
-                size="md"
-                borderRadius="full"
-                position="absolute"
-                top={-12}
-                right={0}
-                color="white"
-                bg="blackAlpha.600"
-                _hover={{ bg: "blackAlpha.700" }}
-              />
-            </Dialog.CloseTrigger>
-            {previewImageUrl && (
-              <Image
-                src={previewImageUrl}
-                alt=""
-                maxH="85vh"
-                maxW="90vw"
-                objectFit="contain"
-                borderRadius="lg"
-                mx="auto"
-              />
-            )}
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
+      <ImageLightbox
+        imageUrl={previewImageUrl}
+        onClose={() => setPreviewImageUrl(null)}
+      />
     </Box>
   );
 });
