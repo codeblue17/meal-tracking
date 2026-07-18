@@ -32,6 +32,8 @@ import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import type { Meal } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { getMealImageUrl } from "@/utils/imageUpload";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -168,6 +170,7 @@ export const Dashboard: FC = memo(() => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(Boolean(supabase && user));
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const fetchMeals = useCallback(async (): Promise<Meal[]> => {
     if (!supabase || !user) return [];
@@ -451,7 +454,18 @@ export const Dashboard: FC = memo(() => {
                         {meta.label}
                       </Flex>
                       {filled && (
-                        <MealThumbnail imagePath={slotImagePath} size="36px" />
+                        <MealThumbnail
+                          imagePath={slotImagePath}
+                          size="36px"
+                          onClick={
+                            slotImagePath
+                              ? () =>
+                                  setPreviewImageUrl(
+                                    getMealImageUrl(slotImagePath),
+                                  )
+                              : undefined
+                          }
+                        />
                       )}
                       <Box flex={1} minW={0}>
                         {filled ? (
@@ -666,7 +680,18 @@ export const Dashboard: FC = memo(() => {
                           bg={`${meta.colorPalette}.400`}
                           flexShrink={0}
                         />
-                        <MealThumbnail imagePath={meal.image_path} size="32px" />
+                        <MealThumbnail
+                          imagePath={meal.image_path}
+                          size="32px"
+                          onClick={
+                            meal.image_path
+                              ? () =>
+                                  setPreviewImageUrl(
+                                    getMealImageUrl(meal.image_path!),
+                                  )
+                              : undefined
+                          }
+                        />
                         <Text
                           color="gray.800"
                           fontSize="sm"
@@ -696,6 +721,11 @@ export const Dashboard: FC = memo(() => {
           setIsMealModalOpen(false);
           refresh();
         }}
+      />
+
+      <ImageLightbox
+        imageUrl={previewImageUrl}
+        onClose={() => setPreviewImageUrl(null)}
       />
     </Box>
   );

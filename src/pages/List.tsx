@@ -191,10 +191,7 @@ export const List: FC = memo(() => {
     if (!supabase) return;
     setDeletingId(meal.id);
     try {
-      const { error } = await supabase
-        .from("meals")
-        .delete()
-        .eq("id", meal.id);
+      const { error } = await supabase.from("meals").delete().eq("id", meal.id);
       if (error) throw error;
       if (meal.image_path) await deleteMealImage(meal.image_path);
       setMeals((prev) => prev.filter((m) => m.id !== meal.id));
@@ -404,6 +401,7 @@ export const List: FC = memo(() => {
                       >
                         <MealThumbnail
                           imagePath={meal.image_path}
+                          size="44px"
                           onClick={
                             meal.image_path
                               ? () =>
