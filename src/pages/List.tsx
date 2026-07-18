@@ -3,10 +3,13 @@ import type { FC } from "react";
 import {
   Box,
   Button,
+  CloseButton,
+  Dialog,
   Flex,
   Heading,
   HStack,
   IconButton,
+  Image,
   Input,
   Spinner,
   Stack,
@@ -21,7 +24,7 @@ import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
-import { deleteMealImage } from "@/utils/imageUpload";
+import { deleteMealImage, getMealImageUrl } from "@/utils/imageUpload";
 
 const PAGE_SIZE = 10;
 
@@ -146,6 +149,7 @@ export const List: FC = memo(() => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   // データ取得のみを担い、状態更新は呼び出し側（effect / イベントハンドラ）で行う
   const fetchMeals = useCallback(async (): Promise<Meal[]> => {
@@ -400,7 +404,17 @@ export const List: FC = memo(() => {
                           boxShadow: "0 12px 32px rgba(15, 23, 42, 0.09)",
                         }}
                       >
-                        <MealThumbnail imagePath={meal.image_path} />
+                        <MealThumbnail
+                          imagePath={meal.image_path}
+                          onClick={
+                            meal.image_path
+                              ? () =>
+                                  setPreviewImageUrl(
+                                    getMealImageUrl(meal.image_path!),
+                                  )
+                              : undefined
+                          }
+                        />
                         <MealTimeBadge mealTime={meal.meal_time} />
                         <Box flex={1} minW={0}>
                           <Text color="gray.900" fontWeight="semibold" truncate>
@@ -506,6 +520,46 @@ export const List: FC = memo(() => {
           refresh();
         }}
       />
+
+      <Dialog.Root
+        open={Boolean(previewImageUrl)}
+        onOpenChange={(e) => !e.open && setPreviewImageUrl(null)}
+      >
+        <Dialog.Backdrop bg="blackAlpha.700" />
+        <Dialog.Positioner>
+          <Dialog.Content
+            bg="transparent"
+            boxShadow="none"
+            maxW="90vw"
+            w="auto"
+            position="relative"
+          >
+            <Dialog.CloseTrigger asChild>
+              <CloseButton
+                size="md"
+                borderRadius="full"
+                position="absolute"
+                top={-12}
+                right={0}
+                color="white"
+                bg="blackAlpha.600"
+                _hover={{ bg: "blackAlpha.700" }}
+              />
+            </Dialog.CloseTrigger>
+            {previewImageUrl && (
+              <Image
+                src={previewImageUrl}
+                alt=""
+                maxH="85vh"
+                maxW="90vw"
+                objectFit="contain"
+                borderRadius="lg"
+                mx="auto"
+              />
+            )}
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Dialog.Root>
     </Box>
   );
 });
