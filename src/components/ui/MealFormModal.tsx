@@ -41,6 +41,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   initialMeal?: Meal;
+  initialMealTime?: MealTime;
 };
 
 const MEAL_NAME_MAX_LENGTH = 100;
@@ -172,13 +173,16 @@ const CalendarPicker: FC<CalendarPickerProps> = ({ value, onChange }) => {
 };
 
 // フォーム状態を持つ内部コンポーネント。open=false でアンマウントされ、状態が自動リセットされる
-const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
-  ({ onClose, initialMeal }) => {
+const MealFormContent: FC<{
+  onClose: () => void;
+  initialMeal?: Meal;
+  initialMealTime?: MealTime;
+}> = memo(({ onClose, initialMeal, initialMealTime }) => {
     const isEdit = Boolean(initialMeal);
     const { user } = useAuth();
     const [name, setName] = useState(initialMeal?.name ?? "");
     const [mealTime, setMealTime] = useState<MealTime>(
-      initialMeal?.meal_time ?? "breakfast",
+      initialMeal?.meal_time ?? initialMealTime ?? "breakfast",
     );
     const [eatenDate, setEatenDate] = useState<Date>(
       initialMeal ? new Date(`${initialMeal.eaten_at}T00:00:00`) : new Date(),
@@ -512,7 +516,7 @@ const MealFormContent: FC<{ onClose: () => void; initialMeal?: Meal }> = memo(
 );
 
 export const MealFormModal: FC<Props> = memo(
-  ({ open, onClose, initialMeal }) => {
+  ({ open, onClose, initialMeal, initialMealTime }) => {
     const isEdit = Boolean(initialMeal);
     return (
       <Dialog.Root open={open} onOpenChange={(e) => !e.open && onClose()}>
@@ -541,7 +545,11 @@ export const MealFormModal: FC<Props> = memo(
               <CloseButton size="sm" borderRadius="full" />
             </Dialog.CloseTrigger>
             {open && (
-              <MealFormContent onClose={onClose} initialMeal={initialMeal} />
+              <MealFormContent
+                onClose={onClose}
+                initialMeal={initialMeal}
+                initialMealTime={initialMealTime}
+              />
             )}
           </Dialog.Content>
         </Dialog.Positioner>

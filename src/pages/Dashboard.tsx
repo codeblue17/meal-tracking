@@ -29,7 +29,7 @@ import { toaster } from "@/components/ui/toaster-instance";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { MealFormModal } from "@/components/ui/MealFormModal";
 import { MealThumbnail } from "@/components/ui/MealThumbnail";
-import type { Meal } from "@/types/meal";
+import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
@@ -170,7 +170,15 @@ export const Dashboard: FC = memo(() => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(Boolean(supabase && user));
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [mealModalInitialTime, setMealModalInitialTime] = useState<
+    MealTime | undefined
+  >(undefined);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+
+  const openMealModal = useCallback((mealTime?: MealTime) => {
+    setMealModalInitialTime(mealTime);
+    setIsMealModalOpen(true);
+  }, []);
 
   const fetchMeals = useCallback(async (): Promise<Meal[]> => {
     if (!supabase || !user) return [];
@@ -359,7 +367,7 @@ export const Dashboard: FC = memo(() => {
               color="teal.700"
               flexShrink={0}
               boxShadow="0 10px 30px rgba(0, 0, 0, 0.18)"
-              onClick={() => setIsMealModalOpen(true)}
+              onClick={() => openMealModal()}
               _hover={{ bg: "whiteAlpha.900", transform: "translateY(-2px)" }}
               _active={{ bg: "white" }}
               transition="transform 0.2s ease"
@@ -499,7 +507,7 @@ export const Dashboard: FC = memo(() => {
                           boxSize={3}
                           cursor="pointer"
                           flexShrink={0}
-                          onClick={() => setIsMealModalOpen(true)}
+                          onClick={() => openMealModal(mealTime)}
                           _hover={{ color: "teal.500" }}
                         />
                       )}
@@ -717,8 +725,10 @@ export const Dashboard: FC = memo(() => {
 
       <MealFormModal
         open={isMealModalOpen}
+        initialMealTime={mealModalInitialTime}
         onClose={() => {
           setIsMealModalOpen(false);
+          setMealModalInitialTime(undefined);
           refresh();
         }}
       />
