@@ -7,7 +7,6 @@ import {
   Heading,
   HStack,
   Icon,
-  SimpleGrid,
   Spinner,
   Stack,
   Text,
@@ -16,7 +15,6 @@ import type { IconType } from "react-icons";
 import {
   FaArrowRight,
   FaCalendarCheck,
-  FaFire,
   FaLayerGroup,
   FaPlus,
   FaRegClock,
@@ -34,6 +32,8 @@ import { toDateStr } from "@/utils/dateUtils";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { getMealImageUrl } from "@/utils/imageUpload";
 import { HeroSection } from "@/components/dashboard/HeroSection";
+import { StatsSection } from "@/components/dashboard/StatsSection";
+import { cardStyle } from "@/styles/dashboardCardStyle";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -75,61 +75,6 @@ const computeStreak = (recordedDates: Set<string>): number => {
 /* -------------------------------------------------------------------------- */
 /*  小コンポーネント                                                           */
 /* -------------------------------------------------------------------------- */
-
-const cardStyle = {
-  bg: "white",
-  borderRadius: "2xl",
-  border: "1px solid",
-  borderColor: "gray.100",
-  boxShadow: "0 18px 50px rgba(15, 23, 42, 0.06)",
-} as const;
-
-const StatCard: FC<{
-  icon: IconType;
-  color: string;
-  value: number;
-  unit: string;
-  label: string;
-}> = memo(({ icon, color, value, unit, label }) => (
-  <Box
-    {...cardStyle}
-    px={{ base: 4, md: 5 }}
-    py={{ base: 4, md: 5 }}
-    transition="transform 0.2s ease, box-shadow 0.2s ease"
-    _hover={{
-      transform: "translateY(-3px)",
-      boxShadow: "0 24px 60px rgba(15, 23, 42, 0.1)",
-    }}
-  >
-    <Flex
-      boxSize={10}
-      borderRadius="xl"
-      bg={`${color}.50`}
-      color={`${color}.500`}
-      align="center"
-      justify="center"
-      mb={3}
-    >
-      <Icon as={icon} boxSize={4} />
-    </Flex>
-    <Flex align="baseline" gap={1}>
-      <Text
-        fontSize={{ base: "2xl", md: "3xl" }}
-        fontWeight="bold"
-        color="gray.900"
-        lineHeight="1"
-      >
-        {value}
-      </Text>
-      <Text fontSize="sm" color="gray.400" fontWeight="medium">
-        {unit}
-      </Text>
-    </Flex>
-    <Text fontSize="xs" color="gray.500" mt={1.5} fontWeight="medium">
-      {label}
-    </Text>
-  </Box>
-));
 
 const SectionTitle: FC<{ icon: IconType; children: string }> = memo(
   ({ icon, children }) => (
@@ -274,40 +219,12 @@ export const Dashboard: FC = memo(() => {
         />
 
         {/* ============== 統計カード ============== */}
-        <SimpleGrid
-          columns={{ base: 2, md: 4 }}
-          gap={{ base: 3, md: 5 }}
-          mb={{ base: 5, md: 7 }}
-        >
-          <StatCard
-            icon={FaUtensils}
-            color="teal"
-            value={stats.todayCount}
-            unit="件"
-            label="今日の記録"
-          />
-          <StatCard
-            icon={FaFire}
-            color="orange"
-            value={stats.streak}
-            unit="日"
-            label="連続記録"
-          />
-          <StatCard
-            icon={FaCalendarCheck}
-            color="purple"
-            value={stats.weekTotal}
-            unit="件"
-            label="今週の記録"
-          />
-          <StatCard
-            icon={FaLayerGroup}
-            color="pink"
-            value={stats.total}
-            unit="件"
-            label="累計の記録"
-          />
-        </SimpleGrid>
+        <StatsSection
+          todayCount={stats.todayCount}
+          streak={stats.streak}
+          weekTotal={stats.weekTotal}
+          total={stats.total}
+        />
 
         {/* ============== メイングリッド ============== */}
         <Grid
