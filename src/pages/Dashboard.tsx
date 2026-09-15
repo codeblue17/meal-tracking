@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import {
   FaArrowRight,
-  FaCalendarCheck,
   FaLayerGroup,
   FaRegClock,
   FaUtensils,
@@ -32,6 +31,7 @@ import { getMealImageUrl } from "@/utils/imageUpload";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 import { TodayMealsSection } from "@/components/dashboard/TodayMealsSection";
+import { WeeklyActivitySection } from "@/components/dashboard/WeeklyActivitySection";
 import { SectionTitle } from "@/components/dashboard/parts/SectionTitle";
 import { cardStyle } from "@/styles/dashboardCardStyle";
 
@@ -226,62 +226,10 @@ export const Dashboard: FC = memo(() => {
             />
 
             {/* 週間アクティビティ */}
-            <Box {...cardStyle} p={{ base: 5, md: 6 }}>
-              <SectionTitle icon={FaCalendarCheck}>
-                週間アクティビティ
-              </SectionTitle>
-              <Flex
-                align="flex-end"
-                justify="space-between"
-                gap={{ base: 2, md: 3 }}
-                h="160px"
-              >
-                {stats.weekly.map((day) => {
-                  const ratio = day.count / stats.weeklyMax;
-                  return (
-                    <Flex
-                      key={day.key}
-                      direction="column"
-                      align="center"
-                      justify="flex-end"
-                      flex={1}
-                      h="full"
-                      gap={2}
-                    >
-                      <Text
-                        fontSize="xs"
-                        fontWeight="bold"
-                        color={day.count > 0 ? "gray.700" : "gray.300"}
-                      >
-                        {day.count}
-                      </Text>
-                      <Box
-                        w="full"
-                        maxW="34px"
-                        h={`${Math.max(ratio * 100, day.count > 0 ? 14 : 4)}%`}
-                        minH="6px"
-                        borderRadius="lg"
-                        transition="height 0.3s ease"
-                        style={{
-                          background: day.isToday
-                            ? "linear-gradient(180deg, #2dd4bf, #0d9488)"
-                            : day.count > 0
-                              ? "linear-gradient(180deg, #99f6e4, #5eead4)"
-                              : "#f1f5f9",
-                        }}
-                      />
-                      <Text
-                        fontSize="xs"
-                        fontWeight={day.isToday ? "bold" : "medium"}
-                        color={day.isToday ? "teal.600" : "gray.400"}
-                      >
-                        {day.weekday}
-                      </Text>
-                    </Flex>
-                  );
-                })}
-              </Flex>
-            </Box>
+            <WeeklyActivitySection
+              weekly={stats.weekly}
+              weeklyMax={stats.weeklyMax}
+            />
           </Stack>
 
           {/* ----- 右カラム ----- */}
