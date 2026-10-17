@@ -11,12 +11,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import {
-  FaArrowRight,
-  FaLayerGroup,
-  FaRegClock,
-  FaUtensils,
-} from "react-icons/fa";
+import { FaArrowRight, FaRegClock, FaUtensils } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
@@ -32,7 +27,7 @@ import { HeroSection } from "@/components/dashboard/HeroSection";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 import { TodayMealsSection } from "@/components/dashboard/TodayMealsSection";
 import { WeeklyActivitySection } from "@/components/dashboard/WeeklyActivitySection";
-import { SectionTitle } from "@/components/dashboard/parts/SectionTitle";
+import { MealTimeDistributionSection } from "@/components/dashboard/MealTimeDistributionSection";
 import { cardStyle } from "@/styles/dashboardCardStyle";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
@@ -235,54 +230,10 @@ export const Dashboard: FC = memo(() => {
           {/* ----- 右カラム ----- */}
           <Stack gap={{ base: 5, md: 6 }}>
             {/* 時間帯の割合 */}
-            <Box {...cardStyle} p={{ base: 5, md: 6 }}>
-              <SectionTitle icon={FaLayerGroup}>時間帯の割合</SectionTitle>
-              <Stack gap={4}>
-                {stats.distribution.map(({ mealTime, count }) => {
-                  const meta = MEAL_TIME_META[mealTime];
-                  const pct =
-                    stats.total > 0
-                      ? Math.round((count / stats.total) * 100)
-                      : 0;
-                  return (
-                    <Box key={mealTime}>
-                      <Flex justify="space-between" align="center" mb={1.5}>
-                        <Text
-                          fontSize="sm"
-                          fontWeight="medium"
-                          color="gray.700"
-                        >
-                          {meta.label}
-                        </Text>
-                        <Text
-                          fontSize="xs"
-                          color="gray.400"
-                          fontWeight="medium"
-                        >
-                          {count}件 ・ {pct}%
-                        </Text>
-                      </Flex>
-                      <Box
-                        w="full"
-                        h="8px"
-                        borderRadius="full"
-                        bg="gray.100"
-                        overflow="hidden"
-                      >
-                        <Box
-                          h="full"
-                          w={`${pct}%`}
-                          minW={count > 0 ? "8px" : "0"}
-                          borderRadius="full"
-                          bg={`${meta.colorPalette}.400`}
-                          transition="width 0.4s ease"
-                        />
-                      </Box>
-                    </Box>
-                  );
-                })}
-              </Stack>
-            </Box>
+            <MealTimeDistributionSection
+              distribution={stats.distribution}
+              total={stats.total}
+            />
 
             {/* 最近の記録 */}
             <Box {...cardStyle} p={{ base: 5, md: 6 }}>
