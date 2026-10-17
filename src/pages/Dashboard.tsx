@@ -1,34 +1,20 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import type { FC } from "react";
-import {
-  Box,
-  Flex,
-  Grid,
-  Heading,
-  HStack,
-  Icon,
-  Spinner,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { FaArrowRight, FaRegClock, FaUtensils } from "react-icons/fa";
-import { Link as RouterLink } from "react-router-dom";
+import { Box, Flex, Grid, Spinner, Stack } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
-import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import type { Meal, MealTime } from "@/types/meal";
-import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
+import { MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
-import { getMealImageUrl } from "@/utils/imageUpload";
 import { HeroSection } from "@/components/dashboard/HeroSection";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 import { TodayMealsSection } from "@/components/dashboard/TodayMealsSection";
 import { WeeklyActivitySection } from "@/components/dashboard/WeeklyActivitySection";
 import { MealTimeDistributionSection } from "@/components/dashboard/MealTimeDistributionSection";
-import { cardStyle } from "@/styles/dashboardCardStyle";
+import { RecentMealsSection } from "@/components/dashboard/RecentMealsSection";
 
 const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
 
@@ -236,96 +222,10 @@ export const Dashboard: FC = memo(() => {
             />
 
             {/* 最近の記録 */}
-            <Box {...cardStyle} p={{ base: 5, md: 6 }}>
-              <Flex justify="space-between" align="center" mb={5}>
-                <HStack gap={2.5}>
-                  <Icon as={FaRegClock} color="teal.500" boxSize={4} />
-                  <Heading as="h3" fontSize="md" color="gray.900">
-                    最近の記録
-                  </Heading>
-                </HStack>
-                <HStack
-                  as={RouterLink}
-                  {...{ to: "/list" }}
-                  gap={1}
-                  color="teal.600"
-                  fontSize="xs"
-                  fontWeight="semibold"
-                  _hover={{ color: "teal.700" }}
-                >
-                  <Text>すべて見る</Text>
-                  <Icon as={FaArrowRight} boxSize={2.5} />
-                </HStack>
-              </Flex>
-
-              {stats.recent.length === 0 ? (
-                <Flex direction="column" align="center" py={8} px={4}>
-                  <Flex
-                    boxSize={12}
-                    borderRadius="full"
-                    bg="teal.50"
-                    color="teal.500"
-                    align="center"
-                    justify="center"
-                    mb={3}
-                  >
-                    <Icon as={FaUtensils} boxSize={4} />
-                  </Flex>
-                  <Text
-                    color="gray.700"
-                    fontWeight="semibold"
-                    fontSize="sm"
-                    mb={1}
-                  >
-                    まだ記録がありません
-                  </Text>
-                  <Text fontSize="xs" color="gray.500" textAlign="center">
-                    最初の食事を記録してみましょう
-                  </Text>
-                </Flex>
-              ) : (
-                <Stack gap={2.5}>
-                  {stats.recent.map((meal) => {
-                    const meta = MEAL_TIME_META[meal.meal_time];
-                    return (
-                      <Flex key={meal.id} align="center" gap={3}>
-                        <Box
-                          boxSize={2.5}
-                          borderRadius="full"
-                          bg={`${meta.colorPalette}.400`}
-                          flexShrink={0}
-                        />
-                        <MealThumbnail
-                          imagePath={meal.image_path}
-                          size="32px"
-                          onClick={
-                            meal.image_path
-                              ? () =>
-                                  setPreviewImageUrl(
-                                    getMealImageUrl(meal.image_path!),
-                                  )
-                              : undefined
-                          }
-                        />
-                        <Text
-                          color="gray.800"
-                          fontSize="sm"
-                          fontWeight="medium"
-                          truncate
-                          flex={1}
-                          minW={0}
-                        >
-                          {meal.name}
-                        </Text>
-                        <Text fontSize="xs" color="gray.400" flexShrink={0}>
-                          {meta.label}
-                        </Text>
-                      </Flex>
-                    );
-                  })}
-                </Stack>
-              )}
-            </Box>
+            <RecentMealsSection
+              recent={stats.recent}
+              onPreviewImage={setPreviewImageUrl}
+            />
           </Stack>
         </Grid>
       </Box>
