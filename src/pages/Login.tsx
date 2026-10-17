@@ -3,6 +3,7 @@ import React from "react";
 import type { FC } from "react";
 import { Box, Flex, Input, Text } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { isAuthError } from "@supabase/supabase-js";
 import { AuthLayout } from "../components/ui/layout/AuthLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,10 +23,15 @@ export const Login: FC = memo(() => {
     try {
       await signIn(email, password);
       navigate("/dashboard");
-    } catch {
+    } catch (error) {
+      // Confirm email が有効な場合、確認前のユーザーは email_not_confirmed で弾かれる
+      const notConfirmed =
+        isAuthError(error) && error.code === "email_not_confirmed";
       toaster.create({
         title: "ログインに失敗しました",
-        description: "メールアドレスまたはパスワードが正しくありません",
+        description: notConfirmed
+          ? "メールの確認が済んでいません。届いた確認メールのリンクを開いてください"
+          : "メールアドレスまたはパスワードが正しくありません",
         type: "error",
       });
     } finally {
