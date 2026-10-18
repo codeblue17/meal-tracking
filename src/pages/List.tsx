@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import type { FC } from "react";
 import {
   Box,
@@ -13,7 +13,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FaPen, FaRegTrashAlt, FaUtensils } from "react-icons/fa";
-import { useAuth } from "@/hooks/useAuth";
+import { useMeals } from "@/hooks/useMeals";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
@@ -137,9 +137,7 @@ const MealTimeBadge: FC<{ mealTime: MealTime }> = ({ mealTime }) => {
 };
 
 export const List: FC = memo(() => {
-  const { user } = useAuth();
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [loading, setLoading] = useState(Boolean(supabase && user));
+  const { meals, setMeals, loading, refresh } = useMeals();
   const [mealTimeFilter, setMealTimeFilter] = useState<MealTime | "all">("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -148,44 +146,6 @@ export const List: FC = memo(() => {
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-
-  // データ取得のみを担い、状態更新は呼び出し側（effect / イベントハンドラ）で行う
-  const fetchMeals = useCallback(async (): Promise<Meal[]> => {
-    if (!supabase || !user) return [];
-    const { data, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("eaten_at", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return (data as Meal[]) ?? [];
-  }, [user]);
-
-  useEffect(() => {
-    let active = true;
-    fetchMeals()
-      .then((data) => {
-        if (active) setMeals(data);
-      })
-      .catch(() => {
-        toaster.create({ title: "食事の取得に失敗しました", type: "error" });
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [fetchMeals]);
-
-  const refresh = useCallback(() => {
-    fetchMeals()
-      .then(setMeals)
-      .catch(() => {
-        toaster.create({ title: "食事の取得に失敗しました", type: "error" });
-      });
-  }, [fetchMeals]);
 
   const handleDelete = async (meal: Meal) => {
     if (!supabase) return;

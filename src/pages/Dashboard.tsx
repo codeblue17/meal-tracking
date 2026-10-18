@@ -1,11 +1,10 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import type { FC } from "react";
 import { Box, Flex, Grid, Spinner, Stack } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
-import { toaster } from "@/components/ui/toaster-instance";
+import { useMeals } from "@/hooks/useMeals";
 import { MealFormModal } from "@/components/ui/MealFormModal";
-import type { Meal, MealTime } from "@/types/meal";
+import type { MealTime } from "@/types/meal";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { HeroSection } from "@/components/dashboard/HeroSection";
@@ -21,8 +20,7 @@ import { RecentMealsSection } from "@/components/dashboard/RecentMealsSection";
 
 export const Dashboard: FC = memo(() => {
   const { user } = useAuth();
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [loading, setLoading] = useState(Boolean(supabase && user));
+  const { meals, loading, refresh } = useMeals();
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [mealModalInitialTime, setMealModalInitialTime] = useState<
     MealTime | undefined
@@ -33,43 +31,6 @@ export const Dashboard: FC = memo(() => {
     setMealModalInitialTime(mealTime);
     setIsMealModalOpen(true);
   }, []);
-
-  const fetchMeals = useCallback(async (): Promise<Meal[]> => {
-    if (!supabase || !user) return [];
-    const { data, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("eaten_at", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return (data as Meal[]) ?? [];
-  }, [user]);
-
-  useEffect(() => {
-    let active = true;
-    fetchMeals()
-      .then((data) => {
-        if (active) setMeals(data);
-      })
-      .catch(() => {
-        toaster.create({ title: "食事の取得に失敗しました", type: "error" });
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [fetchMeals]);
-
-  const refresh = useCallback(() => {
-    fetchMeals()
-      .then(setMeals)
-      .catch(() => {
-        toaster.create({ title: "食事の取得に失敗しました", type: "error" });
-      });
-  }, [fetchMeals]);
 
   /* ---- 集計 ---- */
   const stats = useDashboardStats(meals);
