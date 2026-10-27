@@ -6,7 +6,6 @@ import {
   Dialog,
   Flex,
   Grid,
-  Heading,
   Input,
   Stack,
   Text,
@@ -17,7 +16,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
-import type { User } from "@supabase/supabase-js";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { inputStyle } from "@/styles/formStyles";
 
 const DISPLAY_NAME_MAX_LENGTH = 20;
@@ -31,13 +30,6 @@ const GOAL_TYPES = [
 ] as const;
 
 type GoalType = (typeof GOAL_TYPES)[number]["value"];
-
-const getInitials = (user: User | null) => {
-  const name = user?.user_metadata?.full_name as string | undefined;
-  if (name) return name.charAt(0).toUpperCase();
-  if (user?.email) return user.email.charAt(0).toUpperCase();
-  return "?";
-};
 
 const formatDate = (dateStr: string) =>
   new Intl.DateTimeFormat("ja-JP", {
@@ -164,7 +156,6 @@ export const Profile: FC = memo(() => {
     }
   };
 
-
   return (
     <Box
       bg="gray.50"
@@ -182,35 +173,10 @@ export const Profile: FC = memo(() => {
           overflow="hidden"
         >
           {/* アバター・名前・メール */}
-          <Flex
-            direction="column"
-            align="center"
-            py={10}
-            px={{ base: 6, md: 12 }}
-            borderBottom="1px solid"
-            borderColor="gray.100"
-          >
-            <Flex
-              boxSize={20}
-              borderRadius="full"
-              bg="teal.500"
-              color="white"
-              align="center"
-              justify="center"
-              fontSize="2xl"
-              fontWeight="bold"
-              boxShadow="0 8px 24px rgba(20, 184, 166, 0.28)"
-              mb={4}
-            >
-              {getInitials(user)}
-            </Flex>
-            <Heading as="h2" fontSize="xl" color="gray.900" mb={1}>
-              {(user?.user_metadata?.full_name as string) || "未設定"}
-            </Heading>
-            <Text fontSize="sm" color="gray.500">
-              {user?.email}
-            </Text>
-          </Flex>
+          <ProfileHeader
+            fullName={user?.user_metadata?.full_name as string | undefined}
+            email={user?.email}
+          />
 
           {/* アカウント情報 */}
           <Box
@@ -447,7 +413,9 @@ export const Profile: FC = memo(() => {
                 退会すると、以下のデータがすべて削除されます。この操作は取り消せません。
               </Text>
               <Stack gap={1} fontSize="sm" color="gray.600">
-                <Text>・アカウント情報（メールアドレス・表示名・目標設定）</Text>
+                <Text>
+                  ・アカウント情報（メールアドレス・表示名・目標設定）
+                </Text>
                 <Text>・これまでに記録したすべての食事データ</Text>
               </Stack>
             </Dialog.Body>
