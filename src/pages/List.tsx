@@ -1,21 +1,10 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import type { FC } from "react";
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  IconButton,
-  Spinner,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { FaPen, FaRegTrashAlt } from "react-icons/fa";
+import { Box, Button, Flex, HStack, Spinner } from "@chakra-ui/react";
 import { useMeals } from "@/hooks/useMeals";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
-import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { ListHeader } from "@/components/list/ListHeader";
 import { MealTimeFilter } from "@/components/list/MealTimeFilter";
@@ -23,17 +12,13 @@ import type { MealTimeFilterValue } from "@/components/list/MealTimeFilter";
 import { DateRangeFilter } from "@/components/list/DateRangeFilter";
 import type { DateRange } from "@/components/list/DateRangeFilter";
 import { EmptyMealList } from "@/components/list/EmptyMealList";
-import type { Meal, MealTime } from "@/types/meal";
+import { MealGroupList } from "@/components/list/MealGroupList";
+import type { DateGroup } from "@/components/list/MealGroupList";
+import type { Meal } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
-import { formatGroupDate } from "@/utils/dateUtils";
-import { deleteMealImage, getMealImageUrl } from "@/utils/imageUpload";
+import { deleteMealImage } from "@/utils/imageUpload";
 
 const PAGE_SIZE = 10;
-
-type DateGroup = {
-  date: string;
-  meals: Meal[];
-};
 
 // 食事を日付ごとにまとめ、新しい日付が上・日付内は時間帯順に並べる
 const groupByDate = (meals: Meal[]): DateGroup[] => {
@@ -53,26 +38,6 @@ const groupByDate = (meals: Meal[]): DateGroup[] => {
           MEAL_TIME_META[a.meal_time].order - MEAL_TIME_META[b.meal_time].order,
       ),
     }));
-};
-
-const MealTimeBadge: FC<{ mealTime: MealTime }> = ({ mealTime }) => {
-  const meta = MEAL_TIME_META[mealTime];
-  return (
-    <Flex
-      align="center"
-      justify="center"
-      px={3}
-      py={1}
-      borderRadius="full"
-      bg={`${meta.colorPalette}.50`}
-      color={`${meta.colorPalette}.600`}
-      fontSize="xs"
-      fontWeight="semibold"
-      flexShrink={0}
-    >
-      {meta.label}
-    </Flex>
-  );
 };
 
 export const List: FC = memo(() => {
@@ -102,21 +67,32 @@ export const List: FC = memo(() => {
     setPage(1);
   }, []);
 
-  const handleDelete = async (meal: Meal) => {
-    if (!supabase) return;
-    setDeletingId(meal.id);
-    try {
-      const { error } = await supabase.from("meals").delete().eq("id", meal.id);
-      if (error) throw error;
-      if (meal.image_path) await deleteMealImage(meal.image_path);
-      setMeals((prev) => prev.filter((m) => m.id !== meal.id));
-      toaster.create({ title: "削除しました", type: "success" });
-    } catch {
-      toaster.create({ title: "削除に失敗しました", type: "error" });
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  const openEditModal = useCallback((meal: Meal) => {
+    setEditingMeal(meal);
+    setIsMealModalOpen(true);
+  }, []);
+
+  const handleDelete = useCallback(
+    async (meal: Meal) => {
+      if (!supabase) return;
+      setDeletingId(meal.id);
+      try {
+        const { error } = await supabase
+          .from("meals")
+          .delete()
+          .eq("id", meal.id);
+        if (error) throw error;
+        if (meal.image_path) await deleteMealImage(meal.image_path);
+        setMeals((prev) => prev.filter((m) => m.id !== meal.id));
+        toaster.create({ title: "削除しました", type: "success" });
+      } catch {
+        toaster.create({ title: "削除に失敗しました", type: "error" });
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [setMeals],
+  );
 
   // 表示順（日付降順→時間帯順）に並べてからページ分を切り出す
   const filteredMeals = useMemo(() => {
@@ -185,98 +161,13 @@ export const List: FC = memo(() => {
           />
         ) : (
           <>
-            <Stack gap={8}>
-              {pagedGroups.map((group) => (
-                <Box key={group.date}>
-                  <Text
-                    fontSize="sm"
-                    fontWeight="semibold"
-                    color="gray.500"
-                    mb={3}
-                    px={1}
-                  >
-                    {formatGroupDate(group.date)}
-                  </Text>
-                  <Stack gap={3}>
-                    {group.meals.map((meal) => (
-                      <Flex
-                        key={meal.id}
-                        align="center"
-                        gap={4}
-                        bg="white"
-                        borderRadius="2xl"
-                        border="1px solid"
-                        borderColor="gray.100"
-                        boxShadow="0 8px 24px rgba(15, 23, 42, 0.05)"
-                        px={{ base: 4, md: 5 }}
-                        py={4}
-                        transition="all 0.2s ease"
-                        _hover={{
-                          boxShadow: "0 12px 32px rgba(15, 23, 42, 0.09)",
-                        }}
-                      >
-                        <MealThumbnail
-                          imagePath={meal.image_path}
-                          size="44px"
-                          onClick={
-                            meal.image_path
-                              ? () =>
-                                  setPreviewImageUrl(
-                                    getMealImageUrl(meal.image_path!),
-                                  )
-                              : undefined
-                          }
-                        />
-                        <MealTimeBadge mealTime={meal.meal_time} />
-                        <Box flex={1} minW={0}>
-                          <Text color="gray.900" fontWeight="semibold" truncate>
-                            {meal.name}
-                          </Text>
-                          {meal.memo && (
-                            <Text
-                              fontSize="sm"
-                              color="gray.500"
-                              mt={0.5}
-                              lineClamp={2}
-                            >
-                              {meal.memo}
-                            </Text>
-                          )}
-                        </Box>
-                        <IconButton
-                          size="sm"
-                          variant="ghost"
-                          borderRadius="full"
-                          aria-label="編集"
-                          color="gray.400"
-                          onClick={() => {
-                            setEditingMeal(meal);
-                            setIsMealModalOpen(true);
-                          }}
-                          _hover={{ bg: "teal.50", color: "teal.500" }}
-                          flexShrink={0}
-                        >
-                          <FaPen size={13} />
-                        </IconButton>
-                        <IconButton
-                          size="sm"
-                          variant="ghost"
-                          borderRadius="full"
-                          aria-label="削除"
-                          color="gray.400"
-                          loading={deletingId === meal.id}
-                          onClick={() => handleDelete(meal)}
-                          _hover={{ bg: "red.50", color: "red.500" }}
-                          flexShrink={0}
-                        >
-                          <FaRegTrashAlt size={15} />
-                        </IconButton>
-                      </Flex>
-                    ))}
-                  </Stack>
-                </Box>
-              ))}
-            </Stack>
+            <MealGroupList
+              groups={pagedGroups}
+              deletingId={deletingId}
+              onPreviewImage={setPreviewImageUrl}
+              onEdit={openEditModal}
+              onDelete={handleDelete}
+            />
 
             {/* ページャー */}
             {totalPages > 1 && (
