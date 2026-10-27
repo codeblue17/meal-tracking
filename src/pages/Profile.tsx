@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import type { FC } from "react";
 import { Box, Button, Dialog, Stack, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { ProfileEditSection } from "@/components/profile/ProfileEditSection";
 import { GoalSection } from "@/components/profile/GoalSection";
 import type { GoalType } from "@/components/profile/GoalSection";
 import { PasswordSection } from "@/components/profile/PasswordSection";
+import { AccountActionsSection } from "@/components/profile/AccountActionsSection";
 
 export const Profile: FC = memo(() => {
   const { user, signOut } = useAuth();
@@ -19,10 +20,12 @@ export const Profile: FC = memo(() => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     await signOut();
     navigate("/");
-  };
+  }, [signOut, navigate]);
+
+  const openDeleteDialog = useCallback(() => setDeleteOpen(true), []);
 
   const handleDeleteAccount = async () => {
     if (!supabase) return;
@@ -88,40 +91,10 @@ export const Profile: FC = memo(() => {
           <PasswordSection />
 
           {/* アカウント操作 */}
-          <Box px={{ base: 6, md: 12 }} py={8}>
-            <Text color="teal.600" fontWeight="semibold" fontSize="sm" mb={5}>
-              アカウント操作
-            </Text>
-            <Stack gap={3}>
-              <Button
-                size="lg"
-                borderRadius="xl"
-                variant="outline"
-                color="red.500"
-                borderColor="red.200"
-                w="full"
-                onClick={handleSignOut}
-                _hover={{
-                  bg: "red.50",
-                  borderColor: "red.300",
-                  color: "red.600",
-                }}
-              >
-                サインアウト
-              </Button>
-              <Button
-                size="lg"
-                borderRadius="xl"
-                variant="ghost"
-                color="gray.400"
-                w="full"
-                onClick={() => setDeleteOpen(true)}
-                _hover={{ bg: "red.50", color: "red.600" }}
-              >
-                退会する
-              </Button>
-            </Stack>
-          </Box>
+          <AccountActionsSection
+            onSignOut={handleSignOut}
+            onRequestDelete={openDeleteDialog}
+          />
         </Box>
       </Box>
 
