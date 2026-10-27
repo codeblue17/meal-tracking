@@ -1,11 +1,12 @@
 import { memo, useCallback, useMemo, useState } from "react";
 import type { FC } from "react";
-import { Box, Button, Flex, HStack, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Spinner } from "@chakra-ui/react";
 import { useMeals } from "@/hooks/useMeals";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { Pagination } from "@/components/ui/Pagination";
 import { ListHeader } from "@/components/list/ListHeader";
 import { MealTimeFilter } from "@/components/list/MealTimeFilter";
 import type { MealTimeFilterValue } from "@/components/list/MealTimeFilter";
@@ -150,7 +151,7 @@ export const List: FC = memo(() => {
           onChange={handleDateRangeChange}
         />
 
-        {/* 本体 */}
+        {/* 食事記録リスト */}
         {loading ? (
           <Flex justify="center" py={20}>
             <Spinner size="lg" color="teal.500" borderWidth="3px" />
@@ -170,46 +171,11 @@ export const List: FC = memo(() => {
             />
 
             {/* ページャー */}
-            {totalPages > 1 && (
-              <HStack justify="center" gap={2} mt={8}>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  colorPalette="gray"
-                  borderRadius="full"
-                  disabled={currentPage === 1}
-                  onClick={() => setPage(currentPage - 1)}
-                >
-                  前へ
-                </Button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNumber) => (
-                    <Button
-                      key={pageNumber}
-                      size="sm"
-                      borderRadius="full"
-                      variant={pageNumber === currentPage ? "solid" : "ghost"}
-                      colorPalette={
-                        pageNumber === currentPage ? "teal" : "gray"
-                      }
-                      onClick={() => setPage(pageNumber)}
-                    >
-                      {pageNumber}
-                    </Button>
-                  ),
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  colorPalette="gray"
-                  borderRadius="full"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setPage(currentPage + 1)}
-                >
-                  次へ
-                </Button>
-              </HStack>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </>
         )}
       </Box>
