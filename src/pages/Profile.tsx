@@ -1,15 +1,7 @@
 import { memo, useState } from "react";
 import type { FC } from "react";
-import {
-  Box,
-  Button,
-  Dialog,
-  Input,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Dialog, Stack, Text } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
@@ -18,42 +10,14 @@ import { AccountInfoSection } from "@/components/profile/AccountInfoSection";
 import { ProfileEditSection } from "@/components/profile/ProfileEditSection";
 import { GoalSection } from "@/components/profile/GoalSection";
 import type { GoalType } from "@/components/profile/GoalSection";
-import { inputStyle } from "@/styles/formStyles";
+import { PasswordSection } from "@/components/profile/PasswordSection";
 
 export const Profile: FC = memo(() => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordLoading, setPasswordLoading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      toaster.create({ title: "パスワードが一致しません", type: "error" });
-      return;
-    }
-    if (!supabase) return;
-    setPasswordLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-      if (error) throw error;
-      toaster.create({ title: "パスワードを変更しました", type: "success" });
-      setNewPassword("");
-      setConfirmPassword("");
-    } catch {
-      toaster.create({
-        title: "パスワードの変更に失敗しました",
-        type: "error",
-      });
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -121,49 +85,7 @@ export const Profile: FC = memo(() => {
           />
 
           {/* パスワード変更 */}
-          <Box
-            px={{ base: 6, md: 12 }}
-            py={8}
-            borderBottom="1px solid"
-            borderColor="gray.100"
-          >
-            <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-              パスワード変更
-            </Text>
-            <Stack gap={4}>
-              <Box>
-                <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-                  新しいパスワード
-                </Text>
-                <Input
-                  type="password"
-                  placeholder="8文字以上"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  {...inputStyle}
-                />
-              </Box>
-              <Box>
-                <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-                  確認用パスワード
-                </Text>
-                <Input
-                  type="password"
-                  placeholder="もう一度入力"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  {...inputStyle}
-                />
-              </Box>
-              <PrimaryButton
-                loading={passwordLoading}
-                onClick={handleChangePassword}
-                mt={1}
-              >
-                パスワードを変更する
-              </PrimaryButton>
-            </Stack>
-          </Box>
+          <PasswordSection />
 
           {/* アカウント操作 */}
           <Box px={{ base: 6, md: 12 }} py={8}>
