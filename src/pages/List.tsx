@@ -10,7 +10,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { FaPen, FaRegTrashAlt, FaUtensils } from "react-icons/fa";
+import { FaPen, FaRegTrashAlt } from "react-icons/fa";
 import { useMeals } from "@/hooks/useMeals";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
@@ -22,6 +22,7 @@ import { MealTimeFilter } from "@/components/list/MealTimeFilter";
 import type { MealTimeFilterValue } from "@/components/list/MealTimeFilter";
 import { DateRangeFilter } from "@/components/list/DateRangeFilter";
 import type { DateRange } from "@/components/list/DateRangeFilter";
+import { EmptyMealList } from "@/components/list/EmptyMealList";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
@@ -179,38 +180,9 @@ export const List: FC = memo(() => {
             <Spinner size="lg" color="teal.500" borderWidth="3px" />
           </Flex>
         ) : filteredMeals.length === 0 ? (
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            py={16}
-            px={6}
-            bg="white"
-            borderRadius="2xl"
-            border="1px solid"
-            borderColor="gray.100"
-            boxShadow="0 24px 70px rgba(15, 23, 42, 0.06)"
-          >
-            <Flex
-              boxSize={14}
-              borderRadius="full"
-              bg="teal.50"
-              color="teal.500"
-              align="center"
-              justify="center"
-              mb={4}
-            >
-              <FaUtensils size={22} />
-            </Flex>
-            <Text color="gray.700" fontWeight="semibold" mb={1}>
-              {mealTimeFilter === "all" && !dateFrom && !dateTo
-                ? "まだ食事の記録がありません"
-                : "条件に一致する記録はありません"}
-            </Text>
-            <Text fontSize="sm" color="gray.500">
-              「食事を記録」から最初の記録を追加しましょう
-            </Text>
-          </Flex>
+          <EmptyMealList
+            isFiltered={mealTimeFilter !== "all" || !!dateFrom || !!dateTo}
+          />
         ) : (
           <>
             <Stack gap={8}>
