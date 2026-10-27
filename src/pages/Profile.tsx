@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Dialog,
-  Flex,
   Grid,
   Input,
   Stack,
@@ -18,9 +17,9 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { AccountInfoSection } from "@/components/profile/AccountInfoSection";
+import { ProfileEditSection } from "@/components/profile/ProfileEditSection";
 import { inputStyle } from "@/styles/formStyles";
 
-const DISPLAY_NAME_MAX_LENGTH = 20;
 const GOAL_DETAIL_MAX_LENGTH = 200;
 
 const GOAL_TYPES = [
@@ -36,10 +35,6 @@ export const Profile: FC = memo(() => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [displayName, setDisplayName] = useState<string>(
-    (user?.user_metadata?.full_name as string) ?? "",
-  );
-  const [nameLoading, setNameLoading] = useState(false);
   const [goalType, setGoalType] = useState<GoalType | "">(
     (user?.user_metadata?.goal_type as GoalType) ?? "",
   );
@@ -52,30 +47,6 @@ export const Profile: FC = memo(() => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
-  const handleSaveName = async () => {
-    if (!supabase) return;
-    const trimmedName = displayName.trim();
-    if (trimmedName.length > DISPLAY_NAME_MAX_LENGTH) {
-      toaster.create({
-        title: `表示名は${DISPLAY_NAME_MAX_LENGTH}文字以内で入力してください`,
-        type: "error",
-      });
-      return;
-    }
-    setNameLoading(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { full_name: trimmedName },
-      });
-      if (error) throw error;
-      toaster.create({ title: "表示名を更新しました", type: "success" });
-    } catch {
-      toaster.create({ title: "更新に失敗しました", type: "error" });
-    } finally {
-      setNameLoading(false);
-    }
-  };
 
   const handleSaveGoal = async () => {
     if (!goalType) {
@@ -179,36 +150,11 @@ export const Profile: FC = memo(() => {
           />
 
           {/* プロフィール編集 */}
-          <Box
-            px={{ base: 6, md: 12 }}
-            py={8}
-            borderBottom="1px solid"
-            borderColor="gray.100"
-          >
-            <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-              プロフィール編集
-            </Text>
-            <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-              表示名
-            </Text>
-            <Flex gap={3}>
-              <Input
-                placeholder="表示名を入力"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                maxLength={DISPLAY_NAME_MAX_LENGTH}
-                {...inputStyle}
-              />
-              <PrimaryButton
-                px={6}
-                loading={nameLoading}
-                onClick={handleSaveName}
-                flexShrink={0}
-              >
-                保存
-              </PrimaryButton>
-            </Flex>
-          </Box>
+          <ProfileEditSection
+            initialFullName={
+              user?.user_metadata?.full_name as string | undefined
+            }
+          />
 
           {/* 目標設定 */}
           <Box
