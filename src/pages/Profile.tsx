@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { AccountInfoSection } from "@/components/profile/AccountInfoSection";
 import { inputStyle } from "@/styles/formStyles";
 
 const DISPLAY_NAME_MAX_LENGTH = 20;
@@ -30,13 +31,6 @@ const GOAL_TYPES = [
 ] as const;
 
 type GoalType = (typeof GOAL_TYPES)[number]["value"];
-
-const formatDate = (dateStr: string) =>
-  new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(dateStr));
 
 export const Profile: FC = memo(() => {
   const { user, signOut } = useAuth();
@@ -179,34 +173,10 @@ export const Profile: FC = memo(() => {
           />
 
           {/* アカウント情報 */}
-          <Box
-            px={{ base: 6, md: 12 }}
-            py={8}
-            borderBottom="1px solid"
-            borderColor="gray.100"
-          >
-            <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-              アカウント情報
-            </Text>
-            <Stack gap={4}>
-              <Flex justify="space-between" align="center">
-                <Text fontSize="sm" color="gray.500">
-                  メールアドレス
-                </Text>
-                <Text fontSize="sm" color="gray.800" fontWeight="medium">
-                  {user?.email}
-                </Text>
-              </Flex>
-              <Flex justify="space-between" align="center">
-                <Text fontSize="sm" color="gray.500">
-                  登録日
-                </Text>
-                <Text fontSize="sm" color="gray.800" fontWeight="medium">
-                  {user?.created_at ? formatDate(user.created_at) : "—"}
-                </Text>
-              </Flex>
-            </Stack>
-          </Box>
+          <AccountInfoSection
+            email={user?.email}
+            createdAt={user?.created_at}
+          />
 
           {/* プロフィール編集 */}
           <Box
