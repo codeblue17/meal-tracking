@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Flex,
-  Heading,
   HStack,
   IconButton,
   Input,
@@ -19,6 +18,7 @@ import { toaster } from "@/components/ui/toaster-instance";
 import { MealFormModal } from "@/components/ui/MealFormModal";
 import { MealThumbnail } from "@/components/ui/MealThumbnail";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { ListHeader } from "@/components/list/ListHeader";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { formatGroupDate } from "@/utils/dateUtils";
@@ -204,26 +204,7 @@ export const List: FC = memo(() => {
     >
       <Box maxW="720px" mx="auto">
         {/* ヘッダー */}
-        <Flex
-          align={{ base: "start", sm: "center" }}
-          justify="space-between"
-          direction={{ base: "column", sm: "row" }}
-          gap={3}
-          mb={6}
-        >
-          <Box>
-            <Heading
-              as="h2"
-              fontSize={{ base: "xl", md: "2xl" }}
-              color="gray.900"
-            >
-              食事履歴一覧
-            </Heading>
-            <Text fontSize="sm" color="gray.500" mt={1}>
-              {meals.length} 件の記録
-            </Text>
-          </Box>
-        </Flex>
+        <ListHeader totalCount={meals.length} />
 
         {/* 時間帯フィルタ */}
         <HStack gap={2} mb={6} overflowX="auto" pb={1}>
