@@ -20,7 +20,7 @@ import { RecentMealsSection } from "@/components/dashboard/RecentMealsSection";
 
 export const Dashboard: FC = memo(() => {
   const { user } = useAuth();
-  const { meals, loading, refresh } = useMeals();
+  const { meals, loading } = useMeals();
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [mealModalInitialTime, setMealModalInitialTime] = useState<
     MealTime | undefined
@@ -113,7 +113,6 @@ export const Dashboard: FC = memo(() => {
         onClose={() => {
           setIsMealModalOpen(false);
           setMealModalInitialTime(undefined);
-          refresh();
         }}
       />
 

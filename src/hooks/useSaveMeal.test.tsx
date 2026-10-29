@@ -7,6 +7,7 @@ import type { MealFormValues } from "@/hooks/useSaveMeal";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { Meal } from "@/types/meal";
+import { subscribeMealsChanged } from "@/lib/mealEvents";
 
 // supabase.from("meals").insert(...) / .update(...).eq(...) を再現する
 const { fromMock, insertMock, updateMock, eqMock } = vi.hoisted(() => {
@@ -272,5 +273,29 @@ describe("useSaveMeal - 失敗時の画像の後片付け", () => {
       title: "食事を更新しました",
       type: "success",
     });
+  });
+});
+
+describe("useSaveMeal - 保存の通知", () => {
+  it("保存に成功したら、食事が変わったことを通知する", async () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeMealsChanged(listener);
+    const { result } = renderUseSaveMeal();
+    await save(result, values());
+    unsubscribe();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it("入力チェックや保存に失敗したら通知しない", async () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeMealsChanged(listener);
+    const { result } = renderUseSaveMeal();
+    await save(result, values({ name: "   " }));
+    insertMock.mockResolvedValue({ error: new Error("boom") });
+    await save(result, values());
+    unsubscribe();
+
+    expect(listener).not.toHaveBeenCalled();
   });
 });

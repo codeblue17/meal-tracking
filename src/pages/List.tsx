@@ -42,7 +42,7 @@ const groupByDate = (meals: Meal[]): DateGroup[] => {
 };
 
 export const List: FC = memo(() => {
-  const { meals, setMeals, loading, refresh } = useMeals();
+  const { meals, setMeals, loading } = useMeals();
   const [mealTimeFilter, setMealTimeFilter] =
     useState<MealTimeFilterValue>("all");
   const [dateFrom, setDateFrom] = useState("");
@@ -186,7 +186,6 @@ export const List: FC = memo(() => {
         onClose={() => {
           setIsMealModalOpen(false);
           setEditingMeal(null);
-          refresh();
         }}
       />
 

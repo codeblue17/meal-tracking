@@ -34,6 +34,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
 - Client is created in `src/lib/supabase.ts` from `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (`.env`). When they are not set, `supabase` is `null`, so data-access code starts with `if (!supabase) return`.
 - Schema lives in `supabase/migrations/` (`meals` table, `meal-images` storage bucket, `delete_user()` RPC used for account deletion). See README for setup and DB reset.
 - Auth state: `AuthProvider` (`src/contexts/AuthContext.tsx`) subscribes to `onAuthStateChange`; read it with `useAuth()` (`src/hooks/useAuth.ts`) → `{ user, session, loading, signIn, signUp, signOut }`. Profile data (display name, goals) is stored in `user.user_metadata` (`full_name`, `goal_type`, `goal_detail`).
+- Meal data is held per page by `useMeals`, so a save made elsewhere (e.g. the Header's add-meal modal) must announce itself: `src/lib/mealEvents.ts` provides `notifyMealsChanged()` / `subscribeMealsChanged()`. `useSaveMeal` notifies on success and every mounted `useMeals` refetches. Pages do not need to call `refresh()` after closing `MealFormModal`.
 - Meal images: helpers in `src/utils/imageUpload.ts` (`uploadMealImage`, `deleteMealImage`, `getMealImageUrl`).
 
 ### Directory layout
@@ -50,7 +51,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
   - Generated Chakra snippets: `provider.tsx`, `color-mode.tsx`, `toaster.tsx`, `tooltip.tsx`.
-- `src/hooks/` — `useAuth`, `useMeals` (fetches the user's meals, returns `{ meals, setMeals, loading, refresh }`), `useDashboardStats` (pure aggregation for the dashboard), `useSaveMeal` (validates, uploads the image, inserts/updates a meal, deletes a replaced image, shows toasts; `saveMeal` resolves to `true` on success). If the DB write fails it deletes the image it just uploaded; deleting the old image after a successful update is best-effort and never turns the save into a failure.
+- `src/hooks/` — `useAuth`, `useMeals` (fetches the user's meals, returns `{ meals, setMeals, loading, refresh }`; refetches automatically when `notifyMealsChanged()` fires), `useDashboardStats` (pure aggregation for the dashboard), `useSaveMeal` (validates, uploads the image, inserts/updates a meal, deletes a replaced image, shows toasts; `saveMeal` resolves to `true` on success). If the DB write fails it deletes the image it just uploaded; deleting the old image after a successful update is best-effort and never turns the save into a failure.
 - `src/constants/` — `mealTime.ts` (`MEAL_TIME_META` labels/colors/order and `MEAL_TIME_ORDER`; derive meal-time lists from these instead of hard-coding), `auth.ts` (`PASSWORD_MIN_LENGTH`, shared by signup and password change), `date.ts` (`WEEKDAY_LABELS`, indexed by `Date#getDay()`), `meal.ts` (`MEAL_NAME_MAX_LENGTH`, `MEAL_MEMO_MAX_LENGTH`).
 - `src/styles/` — shared style objects (`inputStyle` for form inputs, `cardStyle` for dashboard cards).
 - `src/utils/mealValidation.ts` — `validateMealInput(name, memo)`: trims and checks meal input, returns the cleaned values or an error message.

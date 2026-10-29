@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import type { Meal } from "@/types/meal";
+import { subscribeMealsChanged } from "@/lib/mealEvents";
 
 const notifyFetchError = () => {
   toaster.create({ title: "食事の取得に失敗しました", type: "error" });
@@ -45,6 +46,9 @@ export const useMeals = () => {
   const refresh = useCallback(() => {
     fetchMeals().then(setMeals).catch(notifyFetchError);
   }, [fetchMeals]);
+
+  // 別の画面・コンポーネントで食事が保存されたら取り直す
+  useEffect(() => subscribeMealsChanged(refresh), [refresh]);
 
   return { meals, setMeals, loading, refresh };
 };

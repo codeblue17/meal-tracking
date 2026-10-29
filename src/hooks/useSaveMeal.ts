@@ -6,6 +6,7 @@ import type { Meal, MealTime } from "@/types/meal";
 import { toDateStr } from "@/utils/dateUtils";
 import { deleteMealImage, uploadMealImage } from "@/utils/imageUpload";
 import { validateMealInput } from "@/utils/mealValidation";
+import { notifyMealsChanged } from "@/lib/mealEvents";
 
 export type MealFormValues = {
   name: string;
@@ -87,6 +88,7 @@ export const useSaveMeal = (initialMeal?: Meal) => {
         title: initialMeal ? "食事を更新しました" : "食事を記録しました",
         type: "success",
       });
+      notifyMealsChanged();
       setSaving(false);
       return true;
     },

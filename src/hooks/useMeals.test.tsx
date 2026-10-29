@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
 import { useMeals } from "@/hooks/useMeals";
+import { notifyMealsChanged } from "@/lib/mealEvents";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { Meal } from "@/types/meal";
@@ -146,5 +147,28 @@ describe("useMeals", () => {
     );
 
     expect(result.current.meals.map((m) => m.id)).toEqual(["2"]);
+  });
+
+  it("食事が保存された通知を受けると再取得する", async () => {
+    queryResultMock.mockReturnValue({ data: [makeMeal("1")], error: null });
+    const { result } = renderUseMeals();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const updated = [makeMeal("2"), makeMeal("1")];
+    queryResultMock.mockReturnValue({ data: updated, error: null });
+    act(() => notifyMealsChanged());
+
+    await waitFor(() => expect(result.current.meals).toEqual(updated));
+    expect(fromMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("アンマウント後は通知を受けても再取得しない", async () => {
+    queryResultMock.mockReturnValue({ data: [], error: null });
+    const { result, unmount } = renderUseMeals();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    unmount();
+    notifyMealsChanged();
+    expect(fromMock).toHaveBeenCalledTimes(1);
   });
 });
