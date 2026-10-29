@@ -3,7 +3,7 @@ import type { FC } from "react";
 import { Box, Flex, IconButton, Text } from "@chakra-ui/react";
 import { FaPen, FaRegTrashAlt } from "react-icons/fa";
 import { MealThumbnail } from "@/components/ui/MealThumbnail";
-import type { Meal, MealTime } from "@/types/meal";
+import type { MealSummary, MealTime } from "@/types/meal";
 import { MEAL_TIME_META } from "@/constants/mealTime";
 import { getMealImageUrl } from "@/utils/imageUpload";
 
@@ -27,12 +27,13 @@ const MealTimeBadge: FC<{ mealTime: MealTime }> = ({ mealTime }) => {
   );
 };
 
+// onEdit / onDelete を省略するとそのボタンを出さない（読み取り専用）
 type MealListItemProps = {
-  meal: Meal;
-  isDeleting: boolean;
+  meal: MealSummary;
+  isDeleting?: boolean;
   onPreviewImage: (imageUrl: string | null) => void;
-  onEdit: (meal: Meal) => void;
-  onDelete: (meal: Meal) => void;
+  onEdit?: (mealId: string) => void;
+  onDelete?: (mealId: string) => void;
 };
 
 export const MealListItem: FC<MealListItemProps> = memo(
@@ -74,31 +75,35 @@ export const MealListItem: FC<MealListItemProps> = memo(
             </Text>
           )}
         </Box>
-        <IconButton
-          size="sm"
-          variant="ghost"
-          borderRadius="full"
-          aria-label="編集"
-          color="gray.400"
-          onClick={() => onEdit(meal)}
-          _hover={{ bg: "teal.50", color: "teal.500" }}
-          flexShrink={0}
-        >
-          <FaPen size={13} />
-        </IconButton>
-        <IconButton
-          size="sm"
-          variant="ghost"
-          borderRadius="full"
-          aria-label="削除"
-          color="gray.400"
-          loading={isDeleting}
-          onClick={() => onDelete(meal)}
-          _hover={{ bg: "red.50", color: "red.500" }}
-          flexShrink={0}
-        >
-          <FaRegTrashAlt size={15} />
-        </IconButton>
+        {onEdit && (
+          <IconButton
+            size="sm"
+            variant="ghost"
+            borderRadius="full"
+            aria-label="編集"
+            color="gray.400"
+            onClick={() => onEdit(meal.id)}
+            _hover={{ bg: "teal.50", color: "teal.500" }}
+            flexShrink={0}
+          >
+            <FaPen size={13} />
+          </IconButton>
+        )}
+        {onDelete && (
+          <IconButton
+            size="sm"
+            variant="ghost"
+            borderRadius="full"
+            aria-label="削除"
+            color="gray.400"
+            loading={isDeleting}
+            onClick={() => onDelete(meal.id)}
+            _hover={{ bg: "red.50", color: "red.500" }}
+            flexShrink={0}
+          >
+            <FaRegTrashAlt size={15} />
+          </IconButton>
+        )}
       </Flex>
     );
   },

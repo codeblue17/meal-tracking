@@ -2,20 +2,21 @@ import { memo } from "react";
 import type { FC } from "react";
 import { Box, Stack, Text } from "@chakra-ui/react";
 import { MealListItem } from "@/components/list/MealListItem";
-import type { Meal } from "@/types/meal";
+import type { MealSummary } from "@/types/meal";
 import { formatGroupDate } from "@/utils/dateUtils";
 
 export type DateGroup = {
   date: string;
-  meals: Meal[];
+  meals: MealSummary[];
 };
 
+// onEdit / onDelete を省略すると編集・削除ボタンを出さない（読み取り専用）
 type MealGroupListProps = {
   groups: DateGroup[];
-  deletingId: string | null;
+  deletingId?: string | null;
   onPreviewImage: (imageUrl: string | null) => void;
-  onEdit: (meal: Meal) => void;
-  onDelete: (meal: Meal) => void;
+  onEdit?: (mealId: string) => void;
+  onDelete?: (mealId: string) => void;
 };
 
 export const MealGroupList: FC<MealGroupListProps> = memo(
