@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
+import { toDateStr, fromDateStr, formatDisplayDate } from "@/utils/dateUtils";
 
 describe("toDateStr", () => {
   it("YYYY-MM-DD 形式で返す", () => {
@@ -18,5 +18,15 @@ describe("toDateStr", () => {
 describe("formatDisplayDate", () => {
   it("日本語ロケールの日付文字列を返す", () => {
     expect(formatDisplayDate(new Date(2026, 5, 11))).toBe("2026年6月11日");
+  });
+});
+
+describe("fromDateStr", () => {
+  it("YYYY-MM-DD をローカル時刻の 0 時の Date にする", () => {
+    expect(fromDateStr("2026-06-11")).toEqual(new Date(2026, 5, 11));
+  });
+
+  it("toDateStr と往復できる", () => {
+    expect(toDateStr(fromDateStr("2026-01-01"))).toBe("2026-01-01");
   });
 });

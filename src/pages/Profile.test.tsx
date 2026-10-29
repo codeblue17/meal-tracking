@@ -8,13 +8,24 @@ import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { User } from "@supabase/supabase-js";
 
-const { updateUserMock } = vi.hoisted(() => ({
-  updateUserMock: vi.fn(),
-}));
+const { updateUserMock, fromMock } = vi.hoisted(() => {
+  // 共有リンクの取得（supabase.from("meal_shares").select()...order()）は空の一覧を返す
+  const chain = {
+    select: () => chain,
+    eq: () => chain,
+    is: () => chain,
+    gt: () => chain,
+    order: () => chain,
+    then: (resolve: (v: unknown) => unknown) =>
+      Promise.resolve({ data: [], error: null }).then(resolve),
+  };
+  return { updateUserMock: vi.fn(), fromMock: vi.fn(() => chain) };
+});
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     auth: { updateUser: updateUserMock },
+    from: fromMock,
   },
 }));
 

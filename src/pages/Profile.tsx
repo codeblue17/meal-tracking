@@ -8,6 +8,7 @@ import { AccountInfoSection } from "@/components/profile/AccountInfoSection";
 import { ProfileEditSection } from "@/components/profile/ProfileEditSection";
 import { GoalSection } from "@/components/profile/GoalSection";
 import type { GoalType } from "@/components/profile/GoalSection";
+import { ShareSection } from "@/components/profile/ShareSection";
 import { PasswordSection } from "@/components/profile/PasswordSection";
 import { AccountActionsSection } from "@/components/profile/AccountActionsSection";
 import { DeleteAccountDialog } from "@/components/profile/DeleteAccountDialog";
@@ -70,6 +71,9 @@ export const Profile: FC = memo(() => {
               user?.user_metadata?.goal_detail as string | undefined
             }
           />
+
+          {/* 食事記録の共有 */}
+          <ShareSection />
 
           {/* パスワード変更 */}
           <PasswordSection />
