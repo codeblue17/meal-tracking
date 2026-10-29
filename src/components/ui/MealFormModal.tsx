@@ -25,8 +25,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
-import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { FormField } from "@/components/ui/FormField";
+import { MealFormFooter } from "@/components/ui/mealForm/MealFormFooter";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { WEEKDAY_LABELS } from "@/constants/date";
@@ -47,6 +47,8 @@ type Props = {
   initialMealTime?: MealTime;
 };
 
+// フォーム本体の id。フッターの送信ボタンが form 属性でこの id を参照する
+const MEAL_FORM_ID = "meal-form";
 const MEAL_NAME_MAX_LENGTH = 100;
 const MEAL_MEMO_MAX_LENGTH = 500;
 
@@ -298,7 +300,7 @@ const MealFormContent: FC<{
     return (
       <>
         <Dialog.Body py={6}>
-          <Stack as="form" id="meal-form" onSubmit={handleSubmit} gap={5}>
+          <Stack as="form" id={MEAL_FORM_ID} onSubmit={handleSubmit} gap={5}>
             <FormField label="食事名">
               <Input
                 placeholder="例: 鶏むね肉の定食"
@@ -465,30 +467,12 @@ const MealFormContent: FC<{
           </Stack>
         </Dialog.Body>
 
-        <Dialog.Footer borderTop="1px solid" borderColor="gray.100" pt={4}>
-          <Flex gap={3} w="full">
-            <Button
-              flex={1}
-              size="lg"
-              borderRadius="xl"
-              variant="outline"
-              color="gray.500"
-              borderColor="gray.200"
-              onClick={onClose}
-              _hover={{ bg: "gray.50" }}
-            >
-              キャンセル
-            </Button>
-            <PrimaryButton
-              flex={2}
-              type="submit"
-              form="meal-form"
-              loading={loading}
-            >
-              {isEdit ? "更新する" : "記録する"}
-            </PrimaryButton>
-          </Flex>
-        </Dialog.Footer>
+        <MealFormFooter
+          formId={MEAL_FORM_ID}
+          isEdit={isEdit}
+          loading={loading}
+          onCancel={onClose}
+        />
       </>
     );
   },
