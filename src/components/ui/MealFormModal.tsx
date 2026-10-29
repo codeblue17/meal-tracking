@@ -26,6 +26,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { FormField } from "@/components/ui/FormField";
 import type { Meal, MealTime } from "@/types/meal";
 import { inputStyle } from "@/styles/formStyles";
 import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
@@ -305,10 +306,7 @@ const MealFormContent: FC<{
       <>
         <Dialog.Body py={6}>
           <Stack as="form" id="meal-form" onSubmit={handleSubmit} gap={5}>
-            <Box>
-              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
-                食事名{" "}
-              </Text>
+            <FormField label="食事名">
               <Input
                 placeholder="例: 鶏むね肉の定食"
                 value={name}
@@ -317,12 +315,9 @@ const MealFormContent: FC<{
                 maxLength={MEAL_NAME_MAX_LENGTH}
                 {...inputStyle}
               />
-            </Box>
+            </FormField>
 
-            <Box>
-              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
-                写真
-              </Text>
+            <FormField label="写真">
               <Box
                 position="relative"
                 w="full"
@@ -383,12 +378,9 @@ const MealFormContent: FC<{
                 display="none"
                 onChange={handleFileChange}
               />
-            </Box>
+            </FormField>
 
-            <Box>
-              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
-                時間帯
-              </Text>
+            <FormField label="時間帯">
               <Grid templateColumns="repeat(4, 1fr)" gap={2}>
                 {MEAL_TIMES.map((item) => {
                   const isSelected = mealTime === item.value;
@@ -408,12 +400,9 @@ const MealFormContent: FC<{
                   );
                 })}
               </Grid>
-            </Box>
+            </FormField>
 
-            <Box>
-              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
-                日付
-              </Text>
+            <FormField label="日付">
               <Popover.Root
                 open={isCalendarOpen}
                 onOpenChange={(e) => setIsCalendarOpen(e.open)}
@@ -467,12 +456,9 @@ const MealFormContent: FC<{
                   </Popover.Content>
                 </Popover.Positioner>
               </Popover.Root>
-            </Box>
+            </FormField>
 
-            <Box>
-              <Text color="gray.600" fontSize="sm" fontWeight="medium" mb={2}>
-                メモ
-              </Text>
+            <FormField label="メモ">
               <Textarea
                 placeholder="食材・気づきなど（任意）"
                 value={memo}
@@ -482,7 +468,7 @@ const MealFormContent: FC<{
                 resize="none"
                 {...inputStyle}
               />
-            </Box>
+            </FormField>
           </Stack>
         </Dialog.Body>
 
