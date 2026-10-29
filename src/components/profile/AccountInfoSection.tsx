@@ -1,7 +1,8 @@
 import { memo } from "react";
 import type { FC } from "react";
-import { Box, Flex, Stack, Text } from "@chakra-ui/react";
+import { Flex, Stack, Text } from "@chakra-ui/react";
 import { formatDisplayDate } from "@/utils/dateUtils";
+import { ProfileSection } from "@/components/profile/ProfileSection";
 
 const InfoRow: FC<{ label: string; value: string | undefined }> = ({
   label,
@@ -24,15 +25,7 @@ type AccountInfoSectionProps = {
 
 export const AccountInfoSection: FC<AccountInfoSectionProps> = memo(
   ({ email, createdAt }) => (
-    <Box
-      px={{ base: 6, md: 12 }}
-      py={8}
-      borderBottom="1px solid"
-      borderColor="gray.100"
-    >
-      <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-        アカウント情報
-      </Text>
+    <ProfileSection title="アカウント情報">
       <Stack gap={4}>
         <InfoRow label="メールアドレス" value={email} />
         <InfoRow
@@ -40,6 +33,6 @@ export const AccountInfoSection: FC<AccountInfoSectionProps> = memo(
           value={createdAt ? formatDisplayDate(new Date(createdAt)) : "—"}
         />
       </Stack>
-    </Box>
+    </ProfileSection>
   ),
 );

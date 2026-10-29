@@ -1,11 +1,12 @@
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { Box, Button, Grid, Stack, Text, Textarea } from "@chakra-ui/react";
+import { Button, Grid, Stack, Textarea } from "@chakra-ui/react";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
+import { ProfileSection } from "@/components/profile/ProfileSection";
 
 const GOAL_DETAIL_MAX_LENGTH = 200;
 
@@ -60,15 +61,7 @@ export const GoalSection: FC<GoalSectionProps> = memo(
     };
 
     return (
-      <Box
-        px={{ base: 6, md: 12 }}
-        py={8}
-        borderBottom="1px solid"
-        borderColor="gray.100"
-      >
-        <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-          目標設定
-        </Text>
+      <ProfileSection title="目標設定">
         <Stack gap={4}>
           <FormField label="目標タイプ">
             <Grid templateColumns="repeat(4, 1fr)" gap={2}>
@@ -106,7 +99,7 @@ export const GoalSection: FC<GoalSectionProps> = memo(
             目標を保存する
           </PrimaryButton>
         </Stack>
-      </Box>
+      </ProfileSection>
     );
   },
 );

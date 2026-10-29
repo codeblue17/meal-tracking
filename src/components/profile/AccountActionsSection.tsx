@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { FC } from "react";
-import { Box, Button, Stack, Text } from "@chakra-ui/react";
+import { Button, Stack } from "@chakra-ui/react";
+import { ProfileSection } from "@/components/profile/ProfileSection";
 
 type AccountActionsSectionProps = {
   onSignOut: () => void;
@@ -9,10 +10,7 @@ type AccountActionsSectionProps = {
 
 export const AccountActionsSection: FC<AccountActionsSectionProps> = memo(
   ({ onSignOut, onRequestDelete }) => (
-    <Box px={{ base: 6, md: 12 }} py={8}>
-      <Text color="teal.600" fontWeight="semibold" fontSize="sm" mb={5}>
-        アカウント操作
-      </Text>
+    <ProfileSection title="アカウント操作" titleSize="sm">
       <Stack gap={3}>
         <Button
           size="lg"
@@ -42,6 +40,6 @@ export const AccountActionsSection: FC<AccountActionsSectionProps> = memo(
           退会する
         </Button>
       </Stack>
-    </Box>
+    </ProfileSection>
   ),
 );

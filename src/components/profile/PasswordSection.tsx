@@ -1,12 +1,13 @@
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { Box, Input, Stack, Text } from "@chakra-ui/react";
+import { Input, Stack } from "@chakra-ui/react";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
 import { PASSWORD_MIN_LENGTH } from "@/constants/auth";
+import { ProfileSection } from "@/components/profile/ProfileSection";
 
 export const PasswordSection: FC = memo(() => {
   const [newPassword, setNewPassword] = useState("");
@@ -46,15 +47,7 @@ export const PasswordSection: FC = memo(() => {
   };
 
   return (
-    <Box
-      px={{ base: 6, md: 12 }}
-      py={8}
-      borderBottom="1px solid"
-      borderColor="gray.100"
-    >
-      <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-        パスワード変更
-      </Text>
+    <ProfileSection title="パスワード変更">
       <Stack gap={4}>
         <FormField label="新しいパスワード">
           <Input
@@ -78,6 +71,6 @@ export const PasswordSection: FC = memo(() => {
           パスワードを変更する
         </PrimaryButton>
       </Stack>
-    </Box>
+    </ProfileSection>
   );
 });

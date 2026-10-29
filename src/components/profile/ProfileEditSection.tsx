@@ -1,11 +1,12 @@
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { Flex, Input } from "@chakra-ui/react";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
+import { ProfileSection } from "@/components/profile/ProfileSection";
 
 const DISPLAY_NAME_MAX_LENGTH = 20;
 
@@ -43,15 +44,7 @@ export const ProfileEditSection: FC<ProfileEditSectionProps> = memo(
     };
 
     return (
-      <Box
-        px={{ base: 6, md: 12 }}
-        py={8}
-        borderBottom="1px solid"
-        borderColor="gray.100"
-      >
-        <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
-          プロフィール編集
-        </Text>
+      <ProfileSection title="プロフィール編集">
         <FormField label="表示名">
           <Flex gap={3} w="full">
             <Input
@@ -71,7 +64,7 @@ export const ProfileEditSection: FC<ProfileEditSectionProps> = memo(
             </PrimaryButton>
           </Flex>
         </FormField>
-      </Box>
+      </ProfileSection>
     );
   },
 );
