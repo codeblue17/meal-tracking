@@ -44,6 +44,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `FormField.tsx` — label + input pair built on Chakra `Field`; the label is linked to the `Input` / `Textarea` inside it. Use it for every labeled form control.
   - `MealFormModal.tsx` — add/edit meal dialog (used by Dashboard and List). Its parts live in `mealForm/`.
   - `CalendarPicker.tsx` — month calendar for picking a date (`value` / `onChange`).
+  - `ChoiceButtonGroup.tsx` — row of buttons for picking one option (`options` / `value` / `onChange`, generic over the value type; `""` = nothing selected). Used for meal time and goal type.
   - `DateField.tsx` — date input: a button showing the date that opens `CalendarPicker` in a Popover (owns its open state).
   - `Pagination.tsx`, `PrimaryButton.tsx`, `MealThumbnail.tsx`, `ImageLightbox.tsx`, `LogoIcon.tsx`.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).

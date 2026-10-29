@@ -1,12 +1,13 @@
 import { memo, useState } from "react";
 import type { FC } from "react";
-import { Button, Grid, Stack, Textarea } from "@chakra-ui/react";
+import { Stack, Textarea } from "@chakra-ui/react";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
 import { ProfileSection } from "@/components/profile/ProfileSection";
+import { ChoiceButtonGroup } from "@/components/ui/ChoiceButtonGroup";
 
 const GOAL_DETAIL_MAX_LENGTH = 200;
 
@@ -34,7 +35,10 @@ export const GoalSection: FC<GoalSectionProps> = memo(
 
     const handleSave = async () => {
       if (!goalType) {
-        toaster.create({ title: "目標タイプを選択してください", type: "error" });
+        toaster.create({
+          title: "目標タイプを選択してください",
+          type: "error",
+        });
         return;
       }
       if (!supabase) return;
@@ -64,25 +68,11 @@ export const GoalSection: FC<GoalSectionProps> = memo(
       <ProfileSection title="目標設定">
         <Stack gap={4}>
           <FormField label="目標タイプ">
-            <Grid templateColumns="repeat(4, 1fr)" gap={2}>
-              {GOAL_TYPES.map((item) => {
-                const isSelected = goalType === item.value;
-                return (
-                  <Button
-                    key={item.value}
-                    size="md"
-                    borderRadius="xl"
-                    variant={isSelected ? "solid" : "outline"}
-                    colorPalette={isSelected ? "teal" : "gray"}
-                    onClick={() => setGoalType(item.value)}
-                    type="button"
-                    fontWeight={isSelected ? "semibold" : "medium"}
-                  >
-                    {item.label}
-                  </Button>
-                );
-              })}
-            </Grid>
+            <ChoiceButtonGroup
+              options={GOAL_TYPES}
+              value={goalType}
+              onChange={setGoalType}
+            />
           </FormField>
           <FormField label="具体的な目標">
             <Textarea
