@@ -31,14 +31,14 @@ describe("validateShareInput", () => {
     });
   });
 
-  it("終了日が開始日より前ならエラー", () => {
+  it("「いつの食事まで」が「いつの食事から」より前ならエラー", () => {
     expect(validateShareInput("先生", START, new Date(2026, 8, 30))).toEqual({
       ok: false,
-      message: "共有期間の終了日は開始日以降にしてください",
+      message: "「いつの食事まで」は「いつの食事から」以降の日付にしてください",
     });
   });
 
-  it("開始日と終了日が同じ日なら時刻に関係なく可", () => {
+  it("「いつの食事から」と「いつの食事まで」が同じ日なら時刻に関係なく可", () => {
     expect(
       validateShareInput("先生", START, new Date(2026, 9, 1, 9, 0)).ok,
     ).toBe(true);

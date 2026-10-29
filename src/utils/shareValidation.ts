@@ -5,7 +5,7 @@ export type ShareInputValidation =
   | { ok: true; label: string }
   | { ok: false; message: string };
 
-// 共有相手の名前（前後の空白を除く）と共有期間をチェックし、保存に使う名前を返す
+// 共有相手の名前（前後の空白を除く）と見せる食事記録の範囲をチェックし、保存に使う名前を返す
 export const validateShareInput = (
   label: string,
   startDate: Date,
@@ -25,7 +25,7 @@ export const validateShareInput = (
   if (endDate && toDateStr(startDate) > toDateStr(endDate)) {
     return {
       ok: false,
-      message: "共有期間の終了日は開始日以降にしてください",
+      message: "「いつの食事まで」は「いつの食事から」以降の日付にしてください",
     };
   }
   return { ok: true, label: trimmedLabel };
