@@ -5,6 +5,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
+import { FormField } from "@/components/ui/FormField";
 
 export const PasswordSection: FC = memo(() => {
   const [newPassword, setNewPassword] = useState("");
@@ -47,10 +48,7 @@ export const PasswordSection: FC = memo(() => {
         パスワード変更
       </Text>
       <Stack gap={4}>
-        <Box>
-          <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-            新しいパスワード
-          </Text>
+        <FormField label="新しいパスワード">
           <Input
             type="password"
             placeholder="8文字以上"
@@ -58,11 +56,8 @@ export const PasswordSection: FC = memo(() => {
             onChange={(e) => setNewPassword(e.target.value)}
             {...inputStyle}
           />
-        </Box>
-        <Box>
-          <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-            確認用パスワード
-          </Text>
+        </FormField>
+        <FormField label="確認用パスワード">
           <Input
             type="password"
             placeholder="もう一度入力"
@@ -70,7 +65,7 @@ export const PasswordSection: FC = memo(() => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             {...inputStyle}
           />
-        </Box>
+        </FormField>
         <PrimaryButton loading={loading} onClick={handleChange} mt={1}>
           パスワードを変更する
         </PrimaryButton>

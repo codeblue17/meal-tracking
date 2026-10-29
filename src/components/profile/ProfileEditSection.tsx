@@ -5,6 +5,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
+import { FormField } from "@/components/ui/FormField";
 
 const DISPLAY_NAME_MAX_LENGTH = 20;
 
@@ -51,26 +52,25 @@ export const ProfileEditSection: FC<ProfileEditSectionProps> = memo(
         <Text color="teal.600" fontWeight="semibold" fontSize="xl" mb={5}>
           プロフィール編集
         </Text>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          表示名
-        </Text>
-        <Flex gap={3}>
-          <Input
-            placeholder="表示名を入力"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            maxLength={DISPLAY_NAME_MAX_LENGTH}
-            {...inputStyle}
-          />
-          <PrimaryButton
-            px={6}
-            loading={loading}
-            onClick={handleSave}
-            flexShrink={0}
-          >
-            保存
-          </PrimaryButton>
-        </Flex>
+        <FormField label="表示名">
+          <Flex gap={3} w="full">
+            <Input
+              placeholder="表示名を入力"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              maxLength={DISPLAY_NAME_MAX_LENGTH}
+              {...inputStyle}
+            />
+            <PrimaryButton
+              px={6}
+              loading={loading}
+              onClick={handleSave}
+              flexShrink={0}
+            >
+              保存
+            </PrimaryButton>
+          </Flex>
+        </FormField>
       </Box>
     );
   },

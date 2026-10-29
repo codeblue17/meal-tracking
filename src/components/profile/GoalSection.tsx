@@ -5,6 +5,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
+import { FormField } from "@/components/ui/FormField";
 
 const GOAL_DETAIL_MAX_LENGTH = 200;
 
@@ -69,10 +70,7 @@ export const GoalSection: FC<GoalSectionProps> = memo(
           目標設定
         </Text>
         <Stack gap={4}>
-          <Box>
-            <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-              目標タイプ
-            </Text>
+          <FormField label="目標タイプ">
             <Grid templateColumns="repeat(4, 1fr)" gap={2}>
               {GOAL_TYPES.map((item) => {
                 const isSelected = goalType === item.value;
@@ -92,11 +90,8 @@ export const GoalSection: FC<GoalSectionProps> = memo(
                 );
               })}
             </Grid>
-          </Box>
-          <Box>
-            <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-              具体的な目標
-            </Text>
+          </FormField>
+          <FormField label="具体的な目標">
             <Textarea
               placeholder="例: 3ヶ月で体重を3kg減らす（任意）"
               value={goalDetail}
@@ -106,7 +101,7 @@ export const GoalSection: FC<GoalSectionProps> = memo(
               resize="none"
               {...inputStyle}
             />
-          </Box>
+          </FormField>
           <PrimaryButton loading={loading} onClick={handleSave} mt={1}>
             目標を保存する
           </PrimaryButton>

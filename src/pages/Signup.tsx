@@ -1,13 +1,14 @@
 import { memo, useState } from "react";
 import React from "react";
 import type { FC } from "react";
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { Flex, Input, Text } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { AuthLayout } from "../components/ui/layout/AuthLayout";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
+import { FormField } from "@/components/ui/FormField";
 
 export const Signup: FC = memo(() => {
   const { signUp } = useAuth();
@@ -65,10 +66,7 @@ export const Signup: FC = memo(() => {
       description="メールアドレスとパスワードを入力してください。"
       onSubmit={handleSubmit}
     >
-      <Box>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          メールアドレス
-        </Text>
+      <FormField label="メールアドレス">
         <Input
           type="email"
           placeholder="example@email.com"
@@ -77,11 +75,8 @@ export const Signup: FC = memo(() => {
           required
           {...inputStyle}
         />
-      </Box>
-      <Box>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          パスワード
-        </Text>
+      </FormField>
+      <FormField label="パスワード">
         <Input
           type="password"
           placeholder="8文字以上"
@@ -91,11 +86,8 @@ export const Signup: FC = memo(() => {
           minLength={8}
           {...inputStyle}
         />
-      </Box>
-      <Box>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          パスワード（確認）
-        </Text>
+      </FormField>
+      <FormField label="パスワード（確認）">
         <Input
           type="password"
           placeholder="もう一度入力"
@@ -104,7 +96,7 @@ export const Signup: FC = memo(() => {
           required
           {...inputStyle}
         />
-      </Box>
+      </FormField>
       <PrimaryButton type="submit" mt={2} loading={loading}>
         アカウントを作成
       </PrimaryButton>

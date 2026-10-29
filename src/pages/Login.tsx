@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import React from "react";
 import type { FC } from "react";
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { Flex, Input, Text } from "@chakra-ui/react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { isAuthError } from "@supabase/supabase-js";
 import { AuthLayout } from "../components/ui/layout/AuthLayout";
@@ -9,6 +9,7 @@ import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
+import { FormField } from "@/components/ui/FormField";
 
 export const Login: FC = memo(() => {
   const { signIn } = useAuth();
@@ -53,10 +54,7 @@ export const Login: FC = memo(() => {
       description="アカウント情報を入力してください。"
       onSubmit={handleSubmit}
     >
-      <Box>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          メールアドレス
-        </Text>
+      <FormField label="メールアドレス">
         <Input
           type="email"
           placeholder="example@email.com"
@@ -65,11 +63,8 @@ export const Login: FC = memo(() => {
           required
           {...inputStyle}
         />
-      </Box>
-      <Box>
-        <Text color="gray.700" fontSize="sm" fontWeight="medium" mb={2}>
-          パスワード
-        </Text>
+      </FormField>
+      <FormField label="パスワード">
         <Input
           type="password"
           placeholder="password"
@@ -78,7 +73,7 @@ export const Login: FC = memo(() => {
           required
           {...inputStyle}
         />
-      </Box>
+      </FormField>
       {/* <Flex justify="flex-end">
         <Link color="teal.600" fontSize="sm" fontWeight="medium">
           パスワードを忘れた方
