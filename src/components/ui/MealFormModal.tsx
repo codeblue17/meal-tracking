@@ -10,26 +10,21 @@ import {
   IconButton,
   Image,
   Input,
-  Popover,
   Stack,
   Text,
   Textarea,
 } from "@chakra-ui/react";
-import {
-  FaCalendarAlt,
-  FaCamera,
-  FaTimes,
-} from "react-icons/fa";
+import { FaCamera, FaTimes } from "react-icons/fa";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { FormField } from "@/components/ui/FormField";
 import { MealFormFooter } from "@/components/ui/mealForm/MealFormFooter";
-import { CalendarPicker } from "@/components/ui/CalendarPicker";
+import { DateField } from "@/components/ui/DateField";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { inputStyle } from "@/styles/formStyles";
-import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
+import { toDateStr } from "@/utils/dateUtils";
 import {
   deleteMealImage,
   getMealImageUrl,
@@ -65,7 +60,6 @@ const MealFormContent: FC<{
     const [eatenDate, setEatenDate] = useState<Date>(
       initialMeal ? new Date(`${initialMeal.eaten_at}T00:00:00`) : new Date(),
     );
-    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [memo, setMemo] = useState(initialMeal?.memo ?? "");
     const [loading, setLoading] = useState(false);
 
@@ -280,59 +274,7 @@ const MealFormContent: FC<{
             </FormField>
 
             <FormField label="日付">
-              <Popover.Root
-                open={isCalendarOpen}
-                onOpenChange={(e) => setIsCalendarOpen(e.open)}
-                positioning={{ placement: "bottom-start" }}
-              >
-                <Popover.Trigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    w="full"
-                    h="12"
-                    justifyContent="space-between"
-                    px={4}
-                    borderRadius="xl"
-                    bg="gray.50"
-                    borderColor={isCalendarOpen ? "teal.500" : "gray.200"}
-                    color="gray.800"
-                    fontWeight="normal"
-                    fontSize="md"
-                    boxShadow={
-                      isCalendarOpen
-                        ? "0 0 0 1px var(--chakra-colors-teal-500)"
-                        : "none"
-                    }
-                    _hover={{ bg: "gray.50", borderColor: "teal.400" }}
-                  >
-                    <Text>{formatDisplayDate(eatenDate)}</Text>
-                    <Box color={isCalendarOpen ? "teal.500" : "gray.400"}>
-                      <FaCalendarAlt size={15} />
-                    </Box>
-                  </Button>
-                </Popover.Trigger>
-                <Popover.Positioner>
-                  <Popover.Content
-                    p={0}
-                    borderRadius="xl"
-                    border="1px solid"
-                    borderColor="gray.100"
-                    boxShadow="0 8px 24px rgba(15, 23, 42, 0.12)"
-                    w="auto"
-                  >
-                    <Popover.Body p={0}>
-                      <CalendarPicker
-                        value={eatenDate}
-                        onChange={(date) => {
-                          setEatenDate(date);
-                          setIsCalendarOpen(false);
-                        }}
-                      />
-                    </Popover.Body>
-                  </Popover.Content>
-                </Popover.Positioner>
-              </Popover.Root>
+              <DateField value={eatenDate} onChange={setEatenDate} />
             </FormField>
 
             <FormField label="メモ">

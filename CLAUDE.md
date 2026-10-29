@@ -44,6 +44,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `FormField.tsx` — label + input pair built on Chakra `Field`; the label is linked to the `Input` / `Textarea` inside it. Use it for every labeled form control.
   - `MealFormModal.tsx` — add/edit meal dialog (used by Dashboard and List). Its parts live in `mealForm/`.
   - `CalendarPicker.tsx` — month calendar for picking a date (`value` / `onChange`).
+  - `DateField.tsx` — date input: a button showing the date that opens `CalendarPicker` in a Popover (owns its open state).
   - `Pagination.tsx`, `PrimaryButton.tsx`, `MealThumbnail.tsx`, `ImageLightbox.tsx`, `LogoIcon.tsx`.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
@@ -73,6 +74,7 @@ Vitest + Testing Library on jsdom (`src/test/setup.ts` loads `jest-dom`). Tests 
 - Mock Supabase and the toaster with `vi.hoisted` + `vi.mock("@/lib/supabase", ...)` / `vi.mock("@/components/ui/toaster-instance", ...)` (see `src/pages/Profile.test.tsx`, `src/hooks/useMeals.test.tsx`).
 - Wrap rendered components in `<ChakraProvider value={defaultSystem}>`; provide auth with `<AuthContext.Provider value={...}>`.
 - For date-dependent logic, fix the clock with `vi.useFakeTimers({ toFake: ["Date"] })` + `vi.setSystemTime(...)` (see `src/hooks/useDashboardStats.test.ts`).
+- jsdom has no `ResizeObserver`; tests that open a Chakra Popover must stub it (see `src/components/ui/DateField.test.tsx`).
 - Prefer querying form controls by label (`getByLabelText`) now that labels are linked via `FormField`.
 
 ## Known limitations
