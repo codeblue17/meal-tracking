@@ -2,8 +2,7 @@ import { useMemo } from "react";
 import type { Meal } from "@/types/meal";
 import { MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
-
-const WEEKDAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"];
+import { WEEKDAY_LABELS } from "@/constants/date";
 
 /* -------------------------------------------------------------------------- */
 /*  集計ヘルパー（純粋関数）                                                    */

@@ -48,7 +48,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
   - Generated Chakra snippets: `provider.tsx`, `color-mode.tsx`, `toaster.tsx`, `tooltip.tsx`.
 - `src/hooks/` — `useAuth`, `useMeals` (fetches the user's meals, returns `{ meals, setMeals, loading, refresh }`), `useDashboardStats` (pure aggregation for the dashboard).
-- `src/constants/` — `mealTime.ts` (`MEAL_TIME_META` labels/colors/order and `MEAL_TIME_ORDER`; derive meal-time lists from these instead of hard-coding), `auth.ts` (`PASSWORD_MIN_LENGTH`, shared by signup and password change).
+- `src/constants/` — `mealTime.ts` (`MEAL_TIME_META` labels/colors/order and `MEAL_TIME_ORDER`; derive meal-time lists from these instead of hard-coding), `auth.ts` (`PASSWORD_MIN_LENGTH`, shared by signup and password change), `date.ts` (`WEEKDAY_LABELS`, indexed by `Date#getDay()`).
 - `src/styles/` — shared style objects (`inputStyle` for form inputs, `cardStyle` for dashboard cards).
 - `src/utils/dateUtils.ts` — `toDateStr` (local `YYYY-MM-DD`; `meals.eaten_at` uses this format and is compared as a string), display formatters.
 

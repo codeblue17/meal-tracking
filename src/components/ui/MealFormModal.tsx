@@ -28,6 +28,8 @@ import { toaster } from "@/components/ui/toaster-instance";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { FormField } from "@/components/ui/FormField";
 import type { Meal, MealTime } from "@/types/meal";
+import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
+import { WEEKDAY_LABELS } from "@/constants/date";
 import { inputStyle } from "@/styles/formStyles";
 import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
 import {
@@ -47,15 +49,6 @@ type Props = {
 
 const MEAL_NAME_MAX_LENGTH = 100;
 const MEAL_MEMO_MAX_LENGTH = 500;
-
-const MEAL_TIMES: { value: MealTime; label: string }[] = [
-  { value: "breakfast", label: "朝食" },
-  { value: "lunch", label: "昼食" },
-  { value: "dinner", label: "夕食" },
-  { value: "snack", label: "間食" },
-];
-
-const DAYS_OF_WEEK = ["日", "月", "火", "水", "木", "金", "土"];
 
 type CalendarPickerProps = {
   value: Date;
@@ -119,7 +112,7 @@ const CalendarPicker: FC<CalendarPickerProps> = ({ value, onChange }) => {
       </Flex>
 
       <Grid templateColumns="repeat(7, 1fr)" gap={1} mb={2}>
-        {DAYS_OF_WEEK.map((d) => (
+        {WEEKDAY_LABELS.map((d) => (
           <Text
             key={d}
             textAlign="center"
@@ -382,20 +375,20 @@ const MealFormContent: FC<{
 
             <FormField label="時間帯">
               <Grid templateColumns="repeat(4, 1fr)" gap={2}>
-                {MEAL_TIMES.map((item) => {
-                  const isSelected = mealTime === item.value;
+                {MEAL_TIME_ORDER.map((value) => {
+                  const isSelected = mealTime === value;
                   return (
                     <Button
-                      key={item.value}
+                      key={value}
                       size="md"
                       borderRadius="xl"
                       variant={isSelected ? "solid" : "outline"}
                       colorPalette={isSelected ? "teal" : "gray"}
-                      onClick={() => setMealTime(item.value)}
+                      onClick={() => setMealTime(value)}
                       type="button"
                       fontWeight={isSelected ? "semibold" : "medium"}
                     >
-                      {item.label}
+                      {MEAL_TIME_META[value].label}
                     </Button>
                   );
                 })}
