@@ -68,14 +68,20 @@ export const List: FC = memo(() => {
     setPage(1);
   }, []);
 
-  const openEditModal = useCallback((meal: Meal) => {
-    setEditingMeal(meal);
-    setIsMealModalOpen(true);
-  }, []);
+  const openEditModal = useCallback(
+    (mealId: string) => {
+      const meal = meals.find((m) => m.id === mealId);
+      if (!meal) return;
+      setEditingMeal(meal);
+      setIsMealModalOpen(true);
+    },
+    [meals],
+  );
 
   const handleDelete = useCallback(
-    async (meal: Meal) => {
-      if (!supabase) return;
+    async (mealId: string) => {
+      const meal = meals.find((m) => m.id === mealId);
+      if (!supabase || !meal) return;
       setDeletingId(meal.id);
       try {
         const { error } = await supabase
@@ -92,7 +98,7 @@ export const List: FC = memo(() => {
         setDeletingId(null);
       }
     },
-    [setMeals],
+    [meals, setMeals],
   );
 
   // 表示順（日付降順→時間帯順）に並べてからページ分を切り出す
