@@ -2,7 +2,7 @@ import { memo } from "react";
 import type { FC, ReactNode } from "react";
 import React from "react";
 import { Box, Flex, Heading, Stack, Text } from "@chakra-ui/react";
-import { LogoIcon } from "../LogoIcon";
+import { LogoIcon } from "@/components/ui/LogoIcon";
 
 type AuthLayoutProps = {
   /** 左パネルの見出し（<br /> などの要素も渡せる） */

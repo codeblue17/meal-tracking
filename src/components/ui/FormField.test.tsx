@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChakraProvider, Input, Textarea, defaultSystem } from "@chakra-ui/react";
 import type { ReactNode } from "react";
-import { FormField } from "./FormField";
+import { FormField } from "@/components/ui/FormField";
 
 const renderWithChakra = (ui: ReactNode) =>
   render(<ChakraProvider value={defaultSystem}>{ui}</ChakraProvider>);

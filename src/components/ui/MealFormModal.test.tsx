@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { MealFormModal } from "./MealFormModal";
+import { MealFormModal } from "@/components/ui/MealFormModal";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { User } from "@supabase/supabase-js";

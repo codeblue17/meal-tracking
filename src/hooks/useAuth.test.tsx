@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useAuth } from "./useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 describe("useAuth", () => {
   it("AuthProvider の外で使用するとエラーをスローする", () => {

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { ReactNode } from "react";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { User } from "@supabase/supabase-js";
-import { useMeals } from "./useMeals";
+import { useMeals } from "@/hooks/useMeals";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { Meal } from "@/types/meal";

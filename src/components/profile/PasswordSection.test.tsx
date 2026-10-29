@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { PasswordSection } from "./PasswordSection";
+import { PasswordSection } from "@/components/profile/PasswordSection";
 
 const { updateUserMock } = vi.hoisted(() => ({
   updateUserMock: vi.fn(),

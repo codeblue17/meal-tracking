@@ -10,7 +10,7 @@ import {
   HStack,
   Text,
 } from "@chakra-ui/react";
-import { LogoIcon } from "../LogoIcon";
+import { LogoIcon } from "@/components/ui/LogoIcon";
 import { memo, useState } from "react";
 import type { FC } from "react";
 import { FaBars, FaUserCircle, FaSignOutAlt, FaPlus } from "react-icons/fa";

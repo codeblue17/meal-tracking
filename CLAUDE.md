@@ -27,7 +27,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
 - `src/router/PrivateRoute.tsx`: shows a spinner while auth is loading, redirects to `/` when there is no user.
 - `src/router/HomeRouter.tsx`: authenticated area. Renders `<Header>` persistently, then nested routes (`/dashboard`, `/list`, `/profile`).
 
-**Path alias:** `@/` maps to `src/` (configured via `tsconfigPaths` in Vite and `tsconfig.app.json`). Use `@/` for imports, not relative `../` paths.
+**Path alias:** `@/` maps to `src/` (configured via `tsconfigPaths` in Vite and `tsconfig.app.json`). Use `@/` for every import — including same-folder files, tests importing the file under test, and CSS — never relative `./` or `../` paths.
 
 ### Supabase
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { PrivateRoute } from "./PrivateRoute";
+import { PrivateRoute } from "@/router/PrivateRoute";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 

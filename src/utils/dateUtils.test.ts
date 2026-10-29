@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toDateStr, formatDisplayDate } from "./dateUtils";
+import { toDateStr, formatDisplayDate } from "@/utils/dateUtils";
 
 describe("toDateStr", () => {
   it("YYYY-MM-DD 形式で返す", () => {

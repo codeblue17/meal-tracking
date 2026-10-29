@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
-import { Profile } from "./Profile";
+import { Profile } from "@/pages/Profile";
 import { AuthContext } from "@/hooks/useAuth";
 import type { AuthContextType } from "@/hooks/useAuth";
 import type { User } from "@supabase/supabase-js";

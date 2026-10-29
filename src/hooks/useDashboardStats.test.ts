@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { computeStreak, lastNDays, useDashboardStats } from "./useDashboardStats";
+import { computeStreak, lastNDays, useDashboardStats } from "@/hooks/useDashboardStats";
 import { toDateStr } from "@/utils/dateUtils";
 import type { Meal, MealTime } from "@/types/meal";
 
