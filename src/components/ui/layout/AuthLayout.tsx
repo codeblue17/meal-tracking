@@ -51,7 +51,7 @@ export const AuthLayout: FC<AuthLayoutProps> = memo(
             textAlign="left"
           >
             <Box>
-              <LogoIcon boxSize={12} bg="whiteAlpha.300" fontSize="xl" mb={8} />
+              <LogoIcon boxSize={12} bg="whiteAlpha.300" mb={8} />
               <Heading
                 as="h1"
                 color="white"

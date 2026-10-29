@@ -47,7 +47,8 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `CalendarPicker.tsx` — month calendar for picking a date (`value` / `onChange`).
   - `ChoiceButtonGroup.tsx` — row of buttons for picking one option (`options` / `value` / `onChange`, generic over the value type; `""` = nothing selected). Used for meal time and goal type.
   - `DateField.tsx` — date input: a button showing the date that opens `CalendarPicker` in a Popover (owns its open state).
-  - `Pagination.tsx`, `PrimaryButton.tsx`, `MealThumbnail.tsx`, `ImageLightbox.tsx`, `LogoIcon.tsx`.
+  - `Pagination.tsx`, `PrimaryButton.tsx`, `MealThumbnail.tsx`, `ImageLightbox.tsx`.
+  - `LogoIcon.tsx` — the app mark (a bowl with a sprouting leaf, inline SVG in `currentColor`; size with `boxSize`, color with `color`/`bg`). `public/favicon.svg` draws the same mark, so change both together.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
   - Generated Chakra snippets: `provider.tsx`, `color-mode.tsx`, `toaster.tsx`, `tooltip.tsx`.

@@ -63,7 +63,6 @@ export const Header: FC = memo(() => {
               boxSize={{ base: 9, md: 10 }}
               bg="teal.500"
               color="white"
-              fontSize={{ base: "sm", md: "md" }}
               boxShadow="0 8px 18px rgba(20, 184, 166, 0.28)"
             />
             <Box textAlign="left">
