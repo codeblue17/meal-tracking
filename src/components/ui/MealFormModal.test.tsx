@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
@@ -147,5 +147,57 @@ describe("MealFormModal - メモバリデーション", () => {
     renderModal();
     const textarea = screen.getByPlaceholderText("食材・気づきなど（任意）");
     expect(textarea).toHaveAttribute("maxLength", "500");
+  });
+});
+
+describe("MealFormModal - 写真プレビューの blob URL", () => {
+  let urlCount = 0;
+  const createObjectURLMock = vi.fn(() => `blob:mock-${++urlCount}`);
+  const revokeObjectURLMock = vi.fn();
+
+  // jsdom には URL.createObjectURL / revokeObjectURL が無いため、テスト中だけ差し込む
+  beforeEach(() => {
+    urlCount = 0;
+    createObjectURLMock.mockClear();
+    revokeObjectURLMock.mockClear();
+    URL.createObjectURL = createObjectURLMock;
+    URL.revokeObjectURL = revokeObjectURLMock;
+  });
+
+  afterEach(() => {
+    Reflect.deleteProperty(URL, "createObjectURL");
+    Reflect.deleteProperty(URL, "revokeObjectURL");
+  });
+
+  const selectImage = (name: string) =>
+    userEvent.upload(
+      screen.getByLabelText("写真"),
+      new File(["x"], name, { type: "image/png" }),
+    );
+
+  it("写真を差し替えると、前の blob URL を解放する", async () => {
+    renderModal();
+    await selectImage("a.png");
+    await selectImage("b.png");
+
+    expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:mock-1");
+    expect(revokeObjectURLMock).not.toHaveBeenCalledWith("blob:mock-2");
+  });
+
+  it("写真を削除すると、その blob URL を解放する", async () => {
+    renderModal();
+    await selectImage("a.png");
+    await userEvent.click(screen.getByRole("button", { name: "写真を削除" }));
+
+    expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:mock-1");
+  });
+
+  it("フォームを閉じると、表示中の blob URL を解放する", async () => {
+    const { unmount } = renderModal();
+    await selectImage("a.png");
+    expect(revokeObjectURLMock).not.toHaveBeenCalled();
+
+    unmount();
+    expect(revokeObjectURLMock).toHaveBeenCalledWith("blob:mock-1");
   });
 });
