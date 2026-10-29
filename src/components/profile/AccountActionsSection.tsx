@@ -10,7 +10,7 @@ type AccountActionsSectionProps = {
 
 export const AccountActionsSection: FC<AccountActionsSectionProps> = memo(
   ({ onSignOut, onRequestDelete }) => (
-    <ProfileSection title="アカウント操作" titleSize="sm">
+    <ProfileSection title="アカウント操作">
       <Stack gap={3}>
         <Button
           size="lg"
