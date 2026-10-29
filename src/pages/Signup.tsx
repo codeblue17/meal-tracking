@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
+import { PASSWORD_MIN_LENGTH } from "@/constants/auth";
 
 export const Signup: FC = memo(() => {
   const { signUp } = useAuth();
@@ -79,11 +80,11 @@ export const Signup: FC = memo(() => {
       <FormField label="パスワード">
         <Input
           type="password"
-          placeholder="8文字以上"
+          placeholder={`${PASSWORD_MIN_LENGTH}文字以上`}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={8}
+          minLength={PASSWORD_MIN_LENGTH}
           {...inputStyle}
         />
       </FormField>

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { toaster } from "@/components/ui/toaster-instance";
 import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
+import { PASSWORD_MIN_LENGTH } from "@/constants/auth";
 
 export const PasswordSection: FC = memo(() => {
   const [newPassword, setNewPassword] = useState("");
@@ -13,6 +14,13 @@ export const PasswordSection: FC = memo(() => {
   const [loading, setLoading] = useState(false);
 
   const handleChange = async () => {
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      toaster.create({
+        title: `パスワードは${PASSWORD_MIN_LENGTH}文字以上で入力してください`,
+        type: "error",
+      });
+      return;
+    }
     if (newPassword !== confirmPassword) {
       toaster.create({ title: "パスワードが一致しません", type: "error" });
       return;
@@ -51,7 +59,7 @@ export const PasswordSection: FC = memo(() => {
         <FormField label="新しいパスワード">
           <Input
             type="password"
-            placeholder="8文字以上"
+            placeholder={`${PASSWORD_MIN_LENGTH}文字以上`}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             {...inputStyle}
