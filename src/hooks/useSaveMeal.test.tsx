@@ -209,3 +209,68 @@ describe("useSaveMeal - 更新", () => {
     });
   });
 });
+
+describe("useSaveMeal - 失敗時の画像の後片付け", () => {
+  const file = new File(["x"], "new.png", { type: "image/png" });
+
+  it("登録に失敗したら、アップロードした画像を削除する", async () => {
+    insertMock.mockResolvedValue({ error: new Error("boom") });
+    const { result } = renderUseSaveMeal();
+    const saved = await save(result, values({ imageFile: file }));
+
+    expect(saved).toBe(false);
+    expect(deleteMealImageMock).toHaveBeenCalledWith("user-1/new.jpg");
+  });
+
+  it("更新に失敗したら、アップロードした画像だけを削除し古い画像は残す", async () => {
+    eqMock.mockResolvedValue({ error: new Error("boom") });
+    const { result } = renderUseSaveMeal(existingMeal);
+    const saved = await save(result, values({ imageFile: file }));
+
+    expect(saved).toBe(false);
+    expect(deleteMealImageMock).toHaveBeenCalledTimes(1);
+    expect(deleteMealImageMock).toHaveBeenCalledWith("user-1/new.jpg");
+  });
+
+  it("アップロード自体に失敗したら、削除は呼ばずにエラーを通知する", async () => {
+    uploadMealImageMock.mockRejectedValue(new Error("upload failed"));
+    const { result } = renderUseSaveMeal();
+    const saved = await save(result, values({ imageFile: file }));
+
+    expect(saved).toBe(false);
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(deleteMealImageMock).not.toHaveBeenCalled();
+    expect(toasterCreateMock).toHaveBeenCalledWith({
+      title: "記録に失敗しました",
+      type: "error",
+    });
+  });
+
+  it("後片付けの削除が失敗しても、元のエラーを通知する", async () => {
+    insertMock.mockResolvedValue({ error: new Error("boom") });
+    deleteMealImageMock.mockRejectedValue(new Error("delete failed"));
+    const { result } = renderUseSaveMeal();
+    const saved = await save(result, values({ imageFile: file }));
+
+    expect(saved).toBe(false);
+    expect(toasterCreateMock).toHaveBeenCalledWith({
+      title: "記録に失敗しました",
+      type: "error",
+    });
+    expect(result.current.saving).toBe(false);
+  });
+
+  it("更新後に古い画像を消せなくても、保存は成功として扱い新しい画像は残す", async () => {
+    deleteMealImageMock.mockRejectedValue(new Error("delete failed"));
+    const { result } = renderUseSaveMeal(existingMeal);
+    const saved = await save(result, values({ imageFile: file }));
+
+    expect(saved).toBe(true);
+    expect(deleteMealImageMock).toHaveBeenCalledTimes(1);
+    expect(deleteMealImageMock).toHaveBeenCalledWith("user-1/old.jpg");
+    expect(toasterCreateMock).toHaveBeenCalledWith({
+      title: "食事を更新しました",
+      type: "success",
+    });
+  });
+});

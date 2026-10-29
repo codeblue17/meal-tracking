@@ -17,6 +17,15 @@ export type MealFormValues = {
   removeExistingImage: boolean;
 };
 
+// 画像の削除は後片付けなので、失敗しても呼び出し元の処理を止めない
+const deleteMealImageQuietly = async (path: string) => {
+  try {
+    await deleteMealImage(path);
+  } catch {
+    // 消せなかった画像はストレージに残るが、食事データには影響しない
+  }
+};
+
 // 食事の新規登録・更新を行う。initialMeal があれば更新、無ければ新規登録。
 // 結果はトーストで通知し、saveMeal は保存できたら true を返す
 export const useSaveMeal = (initialMeal?: Meal) => {
@@ -33,10 +42,13 @@ export const useSaveMeal = (initialMeal?: Meal) => {
       }
 
       setSaving(true);
+      // 今回アップロードした画像。DB への保存に失敗したら消して、参照されない画像を残さない
+      let uploadedPath: string | null = null;
       try {
         let imagePath = initialMeal?.image_path ?? null;
         if (values.imageFile) {
-          imagePath = await uploadMealImage(user.id, values.imageFile);
+          uploadedPath = await uploadMealImage(user.id, values.imageFile);
+          imagePath = uploadedPath;
         } else if (values.removeExistingImage) {
           imagePath = null;
         }
@@ -49,34 +61,34 @@ export const useSaveMeal = (initialMeal?: Meal) => {
           image_path: imagePath,
         };
 
-        if (initialMeal) {
-          const { error } = await supabase
-            .from("meals")
-            .update(row)
-            .eq("id", initialMeal.id);
-          if (error) throw error;
-          // 画像を差し替え・削除した場合は古い画像をストレージから消す
-          if (initialMeal.image_path && initialMeal.image_path !== imagePath) {
-            await deleteMealImage(initialMeal.image_path);
-          }
-          toaster.create({ title: "食事を更新しました", type: "success" });
-        } else {
-          const { error } = await supabase
-            .from("meals")
-            .insert({ user_id: user.id, ...row });
-          if (error) throw error;
-          toaster.create({ title: "食事を記録しました", type: "success" });
-        }
-        return true;
+        const { error } = initialMeal
+          ? await supabase.from("meals").update(row).eq("id", initialMeal.id)
+          : await supabase.from("meals").insert({ user_id: user.id, ...row });
+        if (error) throw error;
       } catch {
+        if (uploadedPath) await deleteMealImageQuietly(uploadedPath);
         toaster.create({
           title: initialMeal ? "更新に失敗しました" : "記録に失敗しました",
           type: "error",
         });
-        return false;
-      } finally {
         setSaving(false);
+        return false;
       }
+
+      // ここから先は保存済み。画像を差し替え・削除した場合は古い画像をストレージから消す
+      // （消せなくても保存自体は成功しているので、失敗扱いにはしない）
+      if (
+        initialMeal?.image_path &&
+        (values.imageFile || values.removeExistingImage)
+      ) {
+        await deleteMealImageQuietly(initialMeal.image_path);
+      }
+      toaster.create({
+        title: initialMeal ? "食事を更新しました" : "食事を記録しました",
+        type: "success",
+      });
+      setSaving(false);
+      return true;
     },
     [user, initialMeal],
   );
