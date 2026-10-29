@@ -50,9 +50,10 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
   - Generated Chakra snippets: `provider.tsx`, `color-mode.tsx`, `toaster.tsx`, `tooltip.tsx`.
-- `src/hooks/` — `useAuth`, `useMeals` (fetches the user's meals, returns `{ meals, setMeals, loading, refresh }`), `useDashboardStats` (pure aggregation for the dashboard).
-- `src/constants/` — `mealTime.ts` (`MEAL_TIME_META` labels/colors/order and `MEAL_TIME_ORDER`; derive meal-time lists from these instead of hard-coding), `auth.ts` (`PASSWORD_MIN_LENGTH`, shared by signup and password change), `date.ts` (`WEEKDAY_LABELS`, indexed by `Date#getDay()`).
+- `src/hooks/` — `useAuth`, `useMeals` (fetches the user's meals, returns `{ meals, setMeals, loading, refresh }`), `useDashboardStats` (pure aggregation for the dashboard), `useSaveMeal` (validates, uploads the image, inserts/updates a meal, deletes a replaced image, shows toasts; `saveMeal` resolves to `true` on success).
+- `src/constants/` — `mealTime.ts` (`MEAL_TIME_META` labels/colors/order and `MEAL_TIME_ORDER`; derive meal-time lists from these instead of hard-coding), `auth.ts` (`PASSWORD_MIN_LENGTH`, shared by signup and password change), `date.ts` (`WEEKDAY_LABELS`, indexed by `Date#getDay()`), `meal.ts` (`MEAL_NAME_MAX_LENGTH`, `MEAL_MEMO_MAX_LENGTH`).
 - `src/styles/` — shared style objects (`inputStyle` for form inputs, `cardStyle` for dashboard cards).
+- `src/utils/mealValidation.ts` — `validateMealInput(name, memo)`: trims and checks meal input, returns the cleaned values or an error message.
 - `src/utils/dateUtils.ts` — `toDateStr` (local `YYYY-MM-DD`; `meals.eaten_at` uses this format and is compared as a string), display formatters.
 
 ### Component conventions

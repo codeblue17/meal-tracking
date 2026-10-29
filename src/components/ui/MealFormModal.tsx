@@ -1,9 +1,7 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
-import type { FC } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
+import type { FC, FormEvent } from "react";
 import { CloseButton, Dialog, Input, Stack, Textarea } from "@chakra-ui/react";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
-import { toaster } from "@/components/ui/toaster-instance";
+import { useSaveMeal } from "@/hooks/useSaveMeal";
 import { FormField } from "@/components/ui/FormField";
 import { MealFormFooter } from "@/components/ui/mealForm/MealFormFooter";
 import { DateField } from "@/components/ui/DateField";
@@ -12,12 +10,8 @@ import { ChoiceButtonGroup } from "@/components/ui/ChoiceButtonGroup";
 import type { Meal, MealTime } from "@/types/meal";
 import { MEAL_TIME_META, MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { inputStyle } from "@/styles/formStyles";
-import { toDateStr } from "@/utils/dateUtils";
-import {
-  deleteMealImage,
-  getMealImageUrl,
-  uploadMealImage,
-} from "@/utils/imageUpload";
+import { MEAL_MEMO_MAX_LENGTH, MEAL_NAME_MAX_LENGTH } from "@/constants/meal";
+import { getMealImageUrl } from "@/utils/imageUpload";
 
 type Props = {
   open: boolean;
@@ -28,8 +22,6 @@ type Props = {
 
 // フォーム本体の id。フッターの送信ボタンが form 属性でこの id を参照する
 const MEAL_FORM_ID = "meal-form";
-const MEAL_NAME_MAX_LENGTH = 100;
-const MEAL_MEMO_MAX_LENGTH = 500;
 const MEAL_TIME_OPTIONS = MEAL_TIME_ORDER.map((mt) => ({
   value: mt,
   label: MEAL_TIME_META[mt].label,
@@ -42,7 +34,6 @@ const MealFormContent: FC<{
   initialMealTime?: MealTime;
 }> = memo(({ onClose, initialMeal, initialMealTime }) => {
   const isEdit = Boolean(initialMeal);
-  const { user } = useAuth();
   const [name, setName] = useState(initialMeal?.name ?? "");
   const [mealTime, setMealTime] = useState<MealTime>(
     initialMeal?.meal_time ?? initialMealTime ?? "breakfast",
@@ -51,7 +42,7 @@ const MealFormContent: FC<{
     initialMeal ? new Date(`${initialMeal.eaten_at}T00:00:00`) : new Date(),
   );
   const [memo, setMemo] = useState(initialMeal?.memo ?? "");
-  const [loading, setLoading] = useState(false);
+  const { saveMeal, saving } = useSaveMeal(initialMeal);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
@@ -77,75 +68,17 @@ const MealFormContent: FC<{
     setRemoveExistingImage(true);
   }, []);
 
-  const handleSubmit = async (e: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!supabase || !user) return;
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      toaster.create({ title: "食事名を入力してください", type: "error" });
-      return;
-    }
-    if (trimmedName.length > MEAL_NAME_MAX_LENGTH) {
-      toaster.create({
-        title: `食事名は${MEAL_NAME_MAX_LENGTH}文字以内で入力してください`,
-        type: "error",
-      });
-      return;
-    }
-    const trimmedMemo = memo.trim();
-    if (trimmedMemo.length > MEAL_MEMO_MAX_LENGTH) {
-      toaster.create({
-        title: `メモは${MEAL_MEMO_MAX_LENGTH}文字以内で入力してください`,
-        type: "error",
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      let imagePath = initialMeal?.image_path ?? null;
-      if (imageFile) {
-        imagePath = await uploadMealImage(user.id, imageFile);
-      } else if (removeExistingImage) {
-        imagePath = null;
-      }
-
-      if (isEdit && initialMeal) {
-        const { error } = await supabase
-          .from("meals")
-          .update({
-            name: trimmedName,
-            meal_time: mealTime,
-            eaten_at: toDateStr(eatenDate),
-            memo: trimmedMemo || null,
-            image_path: imagePath,
-          })
-          .eq("id", initialMeal.id);
-        if (error) throw error;
-        if (initialMeal.image_path && initialMeal.image_path !== imagePath) {
-          await deleteMealImage(initialMeal.image_path);
-        }
-        toaster.create({ title: "食事を更新しました", type: "success" });
-      } else {
-        const { error } = await supabase.from("meals").insert({
-          user_id: user.id,
-          name: trimmedName,
-          meal_time: mealTime,
-          eaten_at: toDateStr(eatenDate),
-          memo: trimmedMemo || null,
-          image_path: imagePath,
-        });
-        if (error) throw error;
-        toaster.create({ title: "食事を記録しました", type: "success" });
-      }
-      onClose();
-    } catch {
-      toaster.create({
-        title: isEdit ? "更新に失敗しました" : "記録に失敗しました",
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
+    const saved = await saveMeal({
+      name,
+      mealTime,
+      eatenDate,
+      memo,
+      imageFile,
+      removeExistingImage,
+    });
+    if (saved) onClose();
   };
 
   return (
@@ -200,7 +133,7 @@ const MealFormContent: FC<{
       <MealFormFooter
         formId={MEAL_FORM_ID}
         isEdit={isEdit}
-        loading={loading}
+        loading={saving}
         onCancel={onClose}
       />
     </>
