@@ -42,7 +42,8 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
 - `src/components/<page>/` — components used by a single page (`dashboard/`, `list/`, `profile/`).
 - `src/components/ui/` — shared components:
   - `FormField.tsx` — label + input pair built on Chakra `Field`; the label is linked to the `Input` / `Textarea` inside it. Use it for every labeled form control.
-  - `MealFormModal.tsx` — add/edit meal dialog (used by Dashboard and List).
+  - `MealFormModal.tsx` — add/edit meal dialog (used by Dashboard and List). Its parts live in `mealForm/`.
+  - `CalendarPicker.tsx` — month calendar for picking a date (`value` / `onChange`).
   - `Pagination.tsx`, `PrimaryButton.tsx`, `MealThumbnail.tsx`, `ImageLightbox.tsx`, `LogoIcon.tsx`.
   - `layout/Header.tsx` (sticky nav + mobile Drawer), `layout/AuthLayout.tsx` (Login/Signup frame).
   - `toaster-instance.ts` — import `toaster` from here (not from `toaster.tsx`) to show toasts.
