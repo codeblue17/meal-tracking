@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Meal } from "@/types/meal";
+import type { Meal, MealSummary, MealTime } from "@/types/meal";
 import { MEAL_TIME_ORDER } from "@/constants/mealTime";
 import { toDateStr } from "@/utils/dateUtils";
 import { WEEKDAY_LABELS } from "@/constants/date";
@@ -39,6 +39,15 @@ export const computeStreak = (recordedDates: Set<string>): number => {
   return streak;
 };
 
+// 時間帯の割合（MEAL_TIME_ORDER 順の件数）。共有ページでも使う
+export const countByMealTime = (
+  meals: Pick<MealSummary, "meal_time">[],
+): { mealTime: MealTime; count: number }[] =>
+  MEAL_TIME_ORDER.map((mt) => ({
+    mealTime: mt,
+    count: meals.filter((m) => m.meal_time === mt).length,
+  }));
+
 /* -------------------------------------------------------------------------- */
 /*  ダッシュボード集計フック                                                    */
 /* -------------------------------------------------------------------------- */
@@ -65,11 +74,7 @@ export const useDashboardStats = (meals: Meal[]) =>
     });
     const weeklyMax = Math.max(1, ...weekly.map((w) => w.count));
 
-    // 時間帯の割合
-    const distribution = MEAL_TIME_ORDER.map((mt) => ({
-      mealTime: mt,
-      count: meals.filter((m) => m.meal_time === mt).length,
-    }));
+    const distribution = countByMealTime(meals);
 
     // 今日の4スロット
     const todaySlots = MEAL_TIME_ORDER.map((mt) => ({

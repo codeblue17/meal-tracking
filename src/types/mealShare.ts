@@ -1,5 +1,5 @@
 import type { MealSummary } from "@/types/meal";
-import type { GoalType } from "@/components/profile/GoalSection";
+import type { GoalType } from "@/constants/goal";
 
 // meal_shares テーブルの行（共有リンク）
 export type MealShare = {

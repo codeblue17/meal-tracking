@@ -14,32 +14,11 @@ import { DateRangeFilter } from "@/components/list/DateRangeFilter";
 import type { DateRange } from "@/components/list/DateRangeFilter";
 import { EmptyMealList } from "@/components/list/EmptyMealList";
 import { MealGroupList } from "@/components/list/MealGroupList";
-import type { DateGroup } from "@/components/list/MealGroupList";
 import type { Meal } from "@/types/meal";
-import { MEAL_TIME_META } from "@/constants/mealTime";
 import { deleteMealImage } from "@/utils/imageUpload";
+import { groupByDate, sortMealsForList } from "@/utils/mealList";
 
 const PAGE_SIZE = 10;
-
-// 食事を日付ごとにまとめ、新しい日付が上・日付内は時間帯順に並べる
-const groupByDate = (meals: Meal[]): DateGroup[] => {
-  const map = new Map<string, Meal[]>();
-  for (const meal of meals) {
-    const list = map.get(meal.eaten_at);
-    if (list) list.push(meal);
-    else map.set(meal.eaten_at, [meal]);
-  }
-
-  return Array.from(map.entries())
-    .sort(([a], [b]) => (a < b ? 1 : -1))
-    .map(([date, items]) => ({
-      date,
-      meals: items.sort(
-        (a, b) =>
-          MEAL_TIME_META[a.meal_time].order - MEAL_TIME_META[b.meal_time].order,
-      ),
-    }));
-};
 
 export const List: FC = memo(() => {
   const { meals, setMeals, loading } = useMeals();
@@ -110,12 +89,7 @@ export const List: FC = memo(() => {
         (!dateFrom || m.eaten_at >= dateFrom) &&
         (!dateTo || m.eaten_at <= dateTo),
     );
-    return [...filtered].sort((a, b) => {
-      if (a.eaten_at !== b.eaten_at) return a.eaten_at < b.eaten_at ? 1 : -1;
-      return (
-        MEAL_TIME_META[a.meal_time].order - MEAL_TIME_META[b.meal_time].order
-      );
-    });
+    return sortMealsForList(filtered);
   }, [meals, mealTimeFilter, dateFrom, dateTo]);
 
   const totalPages = Math.max(1, Math.ceil(filteredMeals.length / PAGE_SIZE));

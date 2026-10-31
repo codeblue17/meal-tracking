@@ -7,7 +7,7 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { AccountInfoSection } from "@/components/profile/AccountInfoSection";
 import { ProfileEditSection } from "@/components/profile/ProfileEditSection";
 import { GoalSection } from "@/components/profile/GoalSection";
-import type { GoalType } from "@/components/profile/GoalSection";
+import type { GoalType } from "@/constants/goal";
 import { ShareSection } from "@/components/profile/ShareSection";
 import { PasswordSection } from "@/components/profile/PasswordSection";
 import { AccountActionsSection } from "@/components/profile/AccountActionsSection";

@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { computeStreak, lastNDays, useDashboardStats } from "@/hooks/useDashboardStats";
+import {
+  computeStreak,
+  countByMealTime,
+  lastNDays,
+  useDashboardStats,
+} from "@/hooks/useDashboardStats";
 import { toDateStr } from "@/utils/dateUtils";
 import type { Meal, MealTime } from "@/types/meal";
 
@@ -89,6 +94,22 @@ describe("computeStreak", () => {
     expect(
       computeStreak(new Set(["2026-06-29", "2026-06-30", "2026-07-01"])),
     ).toBe(3);
+  });
+});
+
+describe("countByMealTime", () => {
+  it("時間帯ごとの件数を MEAL_TIME_ORDER 順（記録が無い時間帯は0件）で返す", () => {
+    const meals = [
+      makeMeal({ meal_time: "dinner" }),
+      makeMeal({ meal_time: "breakfast" }),
+      makeMeal({ meal_time: "dinner" }),
+    ];
+    expect(countByMealTime(meals)).toEqual([
+      { mealTime: "breakfast", count: 1 },
+      { mealTime: "lunch", count: 0 },
+      { mealTime: "dinner", count: 2 },
+      { mealTime: "snack", count: 0 },
+    ]);
   });
 });
 
