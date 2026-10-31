@@ -8,17 +8,10 @@ import { inputStyle } from "@/styles/formStyles";
 import { FormField } from "@/components/ui/FormField";
 import { ProfileSection } from "@/components/profile/ProfileSection";
 import { ChoiceButtonGroup } from "@/components/ui/ChoiceButtonGroup";
+import { GOAL_TYPES } from "@/constants/goal";
+import type { GoalType } from "@/constants/goal";
 
 const GOAL_DETAIL_MAX_LENGTH = 200;
-
-const GOAL_TYPES = [
-  { value: "weight_loss", label: "減量" },
-  { value: "weight_gain", label: "増量" },
-  { value: "maintain", label: "健康維持" },
-  { value: "muscle_gain", label: "筋力アップ" },
-] as const;
-
-export type GoalType = (typeof GOAL_TYPES)[number]["value"];
 
 type GoalSectionProps = {
   initialGoalType: GoalType | undefined;

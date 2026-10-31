@@ -5,26 +5,17 @@ import { FaRegCopy, FaShareAlt } from "react-icons/fa";
 import { toaster } from "@/components/ui/toaster-instance";
 import type { MealShare } from "@/types/mealShare";
 import { buildShareUrl } from "@/utils/shareUrl";
-import { formatDisplayDate, fromDateStr } from "@/utils/dateUtils";
+import {
+  formatShareContents,
+  formatSharePeriod,
+  formatShareExpiry,
+} from "@/utils/shareFormat";
 
 type ShareLinkItemProps = {
   share: MealShare;
   isRevoking: boolean;
   onRequestRevoke: (share: MealShare) => void;
 };
-
-// 見せる食事記録の範囲（食事をした日）
-const formatPeriod = (startDate: string, endDate: string | null): string => {
-  const start = formatDisplayDate(fromDateStr(startDate));
-  return endDate
-    ? `${start}〜${formatDisplayDate(fromDateStr(endDate))}の食事`
-    : `${start}の食事から継続`;
-};
-
-const formatContents = (includeMemo: boolean, includeImages: boolean) =>
-  ["食事名・時間帯", includeMemo && "メモ", includeImages && "写真"]
-    .filter(Boolean)
-    .join("・");
 
 // 発行済みの共有リンク1件。URL のコピー・送信（Web Share API が使える環境のみ）と無効化の操作を持つ
 export const ShareLinkItem: FC<ShareLinkItemProps> = memo(
@@ -63,14 +54,14 @@ export const ShareLinkItem: FC<ShareLinkItemProps> = memo(
             {share.label}
           </Text>
           <Text fontSize="sm" color="gray.600">
-            見せる記録：{formatPeriod(share.start_date, share.end_date)}
+            見せる記録：{formatSharePeriod(share.start_date, share.end_date)}
           </Text>
           <Text fontSize="sm" color="gray.600">
             見せる内容：
-            {formatContents(share.include_memo, share.include_images)}
+            {formatShareContents(share.include_memo, share.include_images)}
           </Text>
           <Text fontSize="sm" color="gray.600">
-            リンクを開ける期限：{formatDisplayDate(new Date(share.expires_at))}まで
+            リンクを開ける期限：{formatShareExpiry(share.expires_at)}
           </Text>
         </Stack>
         <Flex gap={2} wrap="wrap">
