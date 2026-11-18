@@ -37,7 +37,10 @@ vi.mock("@/components/ui/toaster-instance", () => ({
   toaster: { create: toasterCreateMock },
 }));
 
-const renderProfile = (user: Partial<User> = { id: "user-1" }) => {
+const renderProfile = (
+  user: Partial<User> = { id: "user-1" },
+  initialPath = "/profile",
+) => {
   const authValue: AuthContextType = {
     user: user as User,
     session: null,
@@ -50,7 +53,7 @@ const renderProfile = (user: Partial<User> = { id: "user-1" }) => {
   return render(
     <ChakraProvider value={defaultSystem}>
       <AuthContext.Provider value={authValue}>
-        <MemoryRouter>
+        <MemoryRouter initialEntries={[initialPath]}>
           <Profile />
         </MemoryRouter>
       </AuthContext.Provider>
@@ -62,6 +65,7 @@ beforeEach(() => {
   updateUserMock.mockReset();
   updateUserMock.mockResolvedValue({ error: null });
   toasterCreateMock.mockReset();
+  fromMock.mockClear();
 });
 
 describe("Profile - 表示名バリデーション", () => {
@@ -153,5 +157,48 @@ describe("Profile - 目標詳細バリデーション", () => {
       "例: 3ヶ月で体重を3kg減らす（任意）",
     );
     expect(textarea).toHaveAttribute("maxLength", "200");
+  });
+});
+
+describe("Profile - タブ", () => {
+  it("初期表示はプロフィールタブで、共有・アカウントの内容は表示されない", () => {
+    renderProfile();
+    expect(screen.getByRole("tab", { name: "プロフィール" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByLabelText("表示名")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "サインアウト" }),
+    ).not.toBeInTheDocument();
+    // 共有タブを開くまで共有リンクは取得しない
+    expect(fromMock).not.toHaveBeenCalled();
+  });
+
+  it("タブを切り替えると対応する内容が表示される", async () => {
+    renderProfile();
+    await userEvent.click(screen.getByRole("tab", { name: "アカウント" }));
+
+    expect(
+      await screen.findByRole("button", { name: "サインアウト" }),
+    ).toBeVisible();
+    expect(screen.getByText("登録日")).toBeVisible();
+  });
+
+  it("?tab=share で共有リンクタブが開く", async () => {
+    renderProfile({ id: "user-1" }, "/profile?tab=share");
+    expect(screen.getByRole("tab", { name: "共有リンク" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await waitFor(() => expect(fromMock).toHaveBeenCalledWith("meal_shares"));
+  });
+
+  it("不正な ?tab= はプロフィールタブを開く", () => {
+    renderProfile({ id: "user-1" }, "/profile?tab=unknown");
+    expect(screen.getByRole("tab", { name: "プロフィール" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
   });
 });

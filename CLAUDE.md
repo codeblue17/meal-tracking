@@ -45,6 +45,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
 ### Directory layout
 
 - `src/pages/` — one file per route. Pages compose section components and own only page-level state (modals, filters, pagination). Each page is a named export wrapped in `memo`.
+- `src/pages/Profile.tsx` — `ProfileHeader` above Chakra `Tabs` (`lazyMount`): プロフィール (name, goal) / 共有リンク (`ShareSection`) / アカウント (info, password, sign-out/delete). The open tab is kept in `?tab=` (`share` / `account`; none = プロフィール), so link to e.g. `/profile?tab=share`. Because of `lazyMount`, share links are fetched only once that tab is opened.
 - `src/pages/SharedMeals.tsx` — the public share page (`/share/:token`). Fetches with `useSharedMeals`, shows a notice for `not_found` / `expired` / fetch errors, and sets `<meta name="robots" content="noindex, nofollow">` (React 19 hoists it into `<head>`).
 - `src/components/<page>/` — components used by a single page (`dashboard/`, `list/`, `profile/`, `share/`). The one exception is the share page, which reuses `list/MealGroupList` read-only (omit `onEdit` / `onDelete` to hide the buttons) and `dashboard/MealTimeDistributionSection`; keep those two usable without the owner's data.
   - `profile/ShareSection.tsx` — issue/list/revoke share links (owns its form state, uses `useMealShares`). Parts: `ShareLinkItem.tsx` (copy link, Web Share API "送る" when available, revoke), `RevokeShareDialog.tsx`.

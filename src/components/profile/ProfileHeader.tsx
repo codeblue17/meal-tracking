@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { FC } from "react";
-import { Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 
 // アバターに表示する1文字（表示名 → メール → "?" の順で採用）
 const getInitial = (
@@ -16,33 +16,34 @@ type ProfileHeaderProps = {
 export const ProfileHeader: FC<ProfileHeaderProps> = memo(
   ({ fullName, email }) => (
     <Flex
-      direction="column"
       align="center"
-      py={10}
+      gap={4}
+      py={{ base: 6, md: 8 }}
       px={{ base: 6, md: 12 }}
-      borderBottom="1px solid"
-      borderColor="gray.100"
+      bg="teal.50"
     >
       <Flex
-        boxSize={20}
+        boxSize={{ base: 14, md: 16 }}
+        flexShrink={0}
         borderRadius="full"
         bg="teal.500"
         color="white"
         align="center"
         justify="center"
-        fontSize="2xl"
+        fontSize="xl"
         fontWeight="bold"
         boxShadow="0 8px 24px rgba(20, 184, 166, 0.28)"
-        mb={4}
       >
         {getInitial(fullName, email)}
       </Flex>
-      <Heading as="h2" fontSize="xl" color="gray.900" mb={1}>
-        {fullName || "未設定"}
-      </Heading>
-      <Text fontSize="sm" color="gray.500">
-        {email}
-      </Text>
+      <Box minW={0}>
+        <Heading as="h2" fontSize="xl" color="gray.900" mb={1} truncate>
+          {fullName || "未設定"}
+        </Heading>
+        <Text fontSize="sm" color="gray.500" truncate>
+          {email}
+        </Text>
+      </Box>
     </Flex>
   ),
 );

@@ -20,7 +20,10 @@ import { ShareLinkItem } from "@/components/profile/ShareLinkItem";
 import { RevokeShareDialog } from "@/components/profile/RevokeShareDialog";
 import { useMealShares } from "@/hooks/useMealShares";
 import type { MealShare } from "@/types/mealShare";
-import { SHARE_EXPIRY_OPTIONS, SHARE_LABEL_MAX_LENGTH } from "@/constants/share";
+import {
+  SHARE_EXPIRY_OPTIONS,
+  SHARE_LABEL_MAX_LENGTH,
+} from "@/constants/share";
 import type { ShareExpiry } from "@/constants/share";
 
 const PERIOD_TYPES = [
@@ -29,6 +32,9 @@ const PERIOD_TYPES = [
 ] as const;
 
 type PeriodType = (typeof PERIOD_TYPES)[number]["value"];
+
+// 入力欄のラベルの太さ。説明文（gray.500）と見分けやすいよう既定の medium より太くする
+const LABEL_FONT_WEIGHT = "semibold";
 
 // 共有開始日の初期値（今日から何日前か）
 const DEFAULT_START_DAYS_AGO = 30;
@@ -98,10 +104,10 @@ export const ShareSection: FC = memo(() => {
               食事をした日がこの範囲の記録を表示します
             </Text>
           </Box>
-          <FormField label="いつの食事から">
+          <FormField label="いつの食事から" labelFontWeight={LABEL_FONT_WEIGHT}>
             <DateField value={startDate} onChange={setStartDate} />
           </FormField>
-          <FormField label="いつの食事まで">
+          <FormField label="いつの食事まで" labelFontWeight={LABEL_FONT_WEIGHT}>
             <ChoiceButtonGroup
               options={PERIOD_TYPES}
               value={periodType}
@@ -117,7 +123,11 @@ export const ShareSection: FC = memo(() => {
           </FormField>
           {/* チェックボックスは Field で囲むと id が重複するため、Fieldset でまとめる */}
           <Fieldset.Root gap={2}>
-            <Fieldset.Legend color="gray.700" fontSize="sm" fontWeight="medium">
+            <Fieldset.Legend
+              color="gray.700"
+              fontSize="sm"
+              fontWeight={LABEL_FONT_WEIGHT}
+            >
               見せる内容
             </Fieldset.Legend>
             <Fieldset.HelperText fontSize="sm" color="gray.500">
@@ -151,7 +161,7 @@ export const ShareSection: FC = memo(() => {
           <Text color="gray.700" fontWeight="semibold">
             リンクの設定
           </Text>
-          <FormField label="共有相手の名前">
+          <FormField label="共有相手の名前" labelFontWeight={LABEL_FONT_WEIGHT}>
             <Input
               placeholder="例: 山田先生"
               value={label}
@@ -160,7 +170,10 @@ export const ShareSection: FC = memo(() => {
               {...inputStyle}
             />
           </FormField>
-          <FormField label="リンクを開ける期間">
+          <FormField
+            label="リンクを開ける期間"
+            labelFontWeight={LABEL_FONT_WEIGHT}
+          >
             <ChoiceButtonGroup
               options={SHARE_EXPIRY_OPTIONS}
               value={expiry}
