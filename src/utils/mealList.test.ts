@@ -2,7 +2,11 @@ import { describe, it, expect } from "vitest";
 import { groupByDate, sortMealsForList } from "@/utils/mealList";
 import type { MealSummary, MealTime } from "@/types/meal";
 
-const meal = (id: string, eatenAt: string, mealTime: MealTime): MealSummary => ({
+const meal = (
+  id: string,
+  eatenAt: string,
+  mealTime: MealTime,
+): MealSummary => ({
   id,
   name: `食事${id}`,
   meal_time: mealTime,
@@ -28,6 +32,15 @@ describe("sortMealsForList", () => {
     ]);
   });
 
+  it("asc なら日付の古い順、同じ日付は時間帯順に並べる", () => {
+    expect(sortMealsForList(MEALS, "asc").map((m) => m.id)).toEqual([
+      "3",
+      "1",
+      "4",
+      "2",
+    ]);
+  });
+
   it("元の配列は並べ替えない", () => {
     const input = [...MEALS];
     sortMealsForList(input);
@@ -45,6 +58,18 @@ describe("groupByDate", () => {
     ).toEqual([
       { date: "2026-10-05", ids: ["4", "2"] },
       { date: "2026-10-01", ids: ["3", "1"] },
+    ]);
+  });
+
+  it("asc なら古い日付を上にし、日付内は時間帯順のまま", () => {
+    expect(
+      groupByDate(MEALS, "asc").map((g) => ({
+        date: g.date,
+        ids: g.meals.map((m) => m.id),
+      })),
+    ).toEqual([
+      { date: "2026-10-01", ids: ["3", "1"] },
+      { date: "2026-10-05", ids: ["4", "2"] },
     ]);
   });
 

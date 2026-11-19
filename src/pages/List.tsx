@@ -14,11 +14,13 @@ import type { MealTimeFilterValue } from "@/components/list/MealTimeFilter";
 // import { DateRangeFilter } from "@/components/list/DateRangeFilter";
 // import type { DateRange } from "@/components/list/DateRangeFilter";
 import { MonthFilter } from "@/components/list/MonthFilter";
+import { SortOrderFilter } from "@/components/list/SortOrderFilter";
 import { EmptyMealList } from "@/components/list/EmptyMealList";
 import { MealGroupList } from "@/components/list/MealGroupList";
 import type { Meal } from "@/types/meal";
 import { deleteMealImage } from "@/utils/imageUpload";
 import { groupByDate, sortMealsForList } from "@/utils/mealList";
+import type { SortOrder } from "@/utils/mealList";
 
 const PAGE_SIZE = 10;
 
@@ -28,6 +30,7 @@ export const List: FC = memo(() => {
     useState<MealTimeFilterValue>("all");
   // 表示する月（YYYY-MM）。空文字は絞り込みなし（初期表示はすべて）
   const [month, setMonth] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   // 日付範囲フィルタ（コメントアウト中）
   // const [dateFrom, setDateFrom] = useState("");
   // const [dateTo, setDateTo] = useState("");
@@ -48,6 +51,11 @@ export const List: FC = memo(() => {
 
   const handleMonthChange = useCallback((value: string) => {
     setMonth(value);
+    setPage(1);
+  }, []);
+
+  const handleSortOrderChange = useCallback((value: SortOrder) => {
+    setSortOrder(value);
     setPage(1);
   }, []);
 
@@ -102,8 +110,8 @@ export const List: FC = memo(() => {
       // && (!dateFrom || m.eaten_at >= dateFrom) &&
       // (!dateTo || m.eaten_at <= dateTo),
     );
-    return sortMealsForList(filtered);
-  }, [meals, mealTimeFilter, month]);
+    return sortMealsForList(filtered, sortOrder);
+  }, [meals, mealTimeFilter, month, sortOrder]);
 
   const totalPages = Math.max(1, Math.ceil(filteredMeals.length / PAGE_SIZE));
   // 削除などで件数が減った場合もページ範囲内に収める
@@ -116,8 +124,9 @@ export const List: FC = memo(() => {
           (currentPage - 1) * PAGE_SIZE,
           currentPage * PAGE_SIZE,
         ),
+        sortOrder,
       ),
-    [filteredMeals, currentPage],
+    [filteredMeals, currentPage, sortOrder],
   );
 
   return (
@@ -137,8 +146,11 @@ export const List: FC = memo(() => {
           onChange={handleMealTimeFilterChange}
         />
 
-        {/* 表示月フィルタ */}
-        <MonthFilter value={month} onChange={handleMonthChange} />
+        {/* 表示月フィルタ・並び順 */}
+        <Flex align="center" justify="space-between" gap={3} mb={6} wrap="wrap">
+          <MonthFilter value={month} onChange={handleMonthChange} />
+          <SortOrderFilter value={sortOrder} onChange={handleSortOrderChange} />
+        </Flex>
 
         {/* 日付フィルタ（表示月フィルタに置き換え。再採用に備えて残す） */}
         {/* <DateRangeFilter

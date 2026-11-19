@@ -17,7 +17,7 @@ export const MonthFilter: FC<MonthFilterProps> = memo(({ value, onChange }) => {
 
   if (!value) {
     return (
-      <Flex mb={6}>
+      <Flex>
         <Button
           size="sm"
           variant="outline"
@@ -35,7 +35,7 @@ export const MonthFilter: FC<MonthFilterProps> = memo(({ value, onChange }) => {
   }
 
   return (
-    <Flex align="center" gap={2} mb={6} wrap="wrap">
+    <Flex align="center" gap={2} wrap="wrap">
       <Flex
         align="center"
         bg="white"
