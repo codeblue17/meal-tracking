@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import type { FC } from "react";
 import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
@@ -8,10 +8,13 @@ import { LogoIcon } from "@/components/ui/LogoIcon";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { Pagination } from "@/components/ui/Pagination";
 import { MealGroupList } from "@/components/list/MealGroupList";
+import { MonthFilter } from "@/components/list/MonthFilter";
+import { SortOrderFilter } from "@/components/list/SortOrderFilter";
 import { SharedMealsHeader } from "@/components/share/SharedMealsHeader";
 import { SharedMealsSummary } from "@/components/share/SharedMealsSummary";
 import { SharedMealsNotice } from "@/components/share/SharedMealsNotice";
 import { groupByDate, sortMealsForList } from "@/utils/mealList";
+import type { SortOrder } from "@/utils/mealList";
 
 const PAGE_SIZE = 10;
 
@@ -21,30 +24,59 @@ export const SharedMeals: FC = memo(() => {
   const { token } = useParams();
   const { result, loading, error } = useSharedMeals(token);
   const [page, setPage] = useState(1);
+  // 表示する月（YYYY-MM、空文字はすべて）と日付の並び順。一覧画面と同じ操作
+  const [month, setMonth] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const shared = result?.status === "ok" ? result : null;
 
-  const sortedMeals = useMemo(
-    () => (shared ? sortMealsForList(shared.meals) : []),
-    [shared],
-  );
+  const allMeals = useMemo(() => shared?.meals ?? [], [shared]);
+
+  // サマリーは月の絞り込みに関係なく、共有されている範囲全体で数える
   const summary = useMemo(
     () => ({
-      recordedDays: new Set(sortedMeals.map((m) => m.eaten_at)).size,
-      distribution: countByMealTime(sortedMeals),
+      recordedDays: new Set(allMeals.map((m) => m.eaten_at)).size,
+      distribution: countByMealTime(allMeals),
     }),
-    [sortedMeals],
+    [allMeals],
   );
 
-  const totalPages = Math.max(1, Math.ceil(sortedMeals.length / PAGE_SIZE));
+  // eaten_at は YYYY-MM-DD 形式のため、表示月（YYYY-MM）との前方一致で絞り込める
+  const visibleMeals = useMemo(
+    () =>
+      sortMealsForList(
+        month
+          ? allMeals.filter((m) => m.eaten_at.startsWith(`${month}-`))
+          : allMeals,
+        sortOrder,
+      ),
+    [allMeals, month, sortOrder],
+  );
+
+  // 絞り込み・並び順が変わったら1ページ目に戻す
+  const handleMonthChange = useCallback((value: string) => {
+    setMonth(value);
+    setPage(1);
+  }, []);
+
+  const handleSortOrderChange = useCallback((value: SortOrder) => {
+    setSortOrder(value);
+    setPage(1);
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(visibleMeals.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pagedGroups = useMemo(
     () =>
       groupByDate(
-        sortedMeals.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+        visibleMeals.slice(
+          (currentPage - 1) * PAGE_SIZE,
+          currentPage * PAGE_SIZE,
+        ),
+        sortOrder,
       ),
-    [sortedMeals, currentPage],
+    [visibleMeals, currentPage, sortOrder],
   );
 
   const renderContent = () => {
@@ -93,25 +125,47 @@ export const SharedMeals: FC = memo(() => {
           includeImages={shared.include_images}
         />
         <SharedMealsSummary
-          total={sortedMeals.length}
+          total={allMeals.length}
           recordedDays={summary.recordedDays}
           distribution={summary.distribution}
         />
-        {sortedMeals.length === 0 ? (
+        {allMeals.length === 0 ? (
           <Text color="gray.500" textAlign="center" py={10}>
             この範囲の食事記録はまだありません
           </Text>
         ) : (
           <>
-            <MealGroupList
-              groups={pagedGroups}
-              onPreviewImage={setPreviewImageUrl}
-            />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setPage}
-            />
+            {/* 表示月フィルタ・並び順 */}
+            <Flex
+              align="center"
+              justify="space-between"
+              gap={3}
+              mb={6}
+              wrap="wrap"
+            >
+              <MonthFilter value={month} onChange={handleMonthChange} />
+              <SortOrderFilter
+                value={sortOrder}
+                onChange={handleSortOrderChange}
+              />
+            </Flex>
+            {visibleMeals.length === 0 ? (
+              <Text color="gray.500" textAlign="center" py={10}>
+                この月の食事記録はありません
+              </Text>
+            ) : (
+              <>
+                <MealGroupList
+                  groups={pagedGroups}
+                  onPreviewImage={setPreviewImageUrl}
+                />
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </>
+            )}
           </>
         )}
       </>

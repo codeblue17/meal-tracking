@@ -31,7 +31,9 @@ const meal = (
   image_path: null,
 });
 
-const makeShared = (overrides: Partial<SharedMealsData> = {}): SharedMealsData => ({
+const makeShared = (
+  overrides: Partial<SharedMealsData> = {},
+): SharedMealsData => ({
   status: "ok",
   owner_name: "テスト太郎",
   goal_type: "weight_loss",
@@ -54,7 +56,8 @@ const mockHook = (value: Partial<ReturnType<typeof hookValue>>) =>
   useSharedMealsMock.mockReturnValue({ ...hookValue(), ...value });
 
 const hookValue = () => ({
-  result: makeShared() as SharedMealsData | { status: "not_found" | "expired" } | null,
+  result: makeShared() as
+    SharedMealsData | { status: "not_found" | "expired" } | null,
   loading: false,
   error: false,
 });
@@ -102,7 +105,11 @@ describe("SharedMeals - 有効なリンク", () => {
 
   it("表示名・目標が未設定でも表示できる", () => {
     mockHook({
-      result: makeShared({ owner_name: null, goal_type: null, goal_detail: null }),
+      result: makeShared({
+        owner_name: null,
+        goal_type: null,
+        goal_detail: null,
+      }),
     });
     renderPage();
     expect(
@@ -128,8 +135,12 @@ describe("SharedMeals - 有効なリンク", () => {
     expect(screen.getByText("ご飯少なめ")).toBeInTheDocument();
     expect(screen.getByText("2026年10月5日(月)")).toBeInTheDocument();
     expect(screen.getByText("2026年10月1日(木)")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "編集" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "削除" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "編集" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "削除" }),
+    ).not.toBeInTheDocument();
   });
 
   it("10件を超えるとページを分ける", async () => {
@@ -148,6 +159,49 @@ describe("SharedMeals - 有効なリンク", () => {
     expect(screen.queryByText("食事12")).not.toBeInTheDocument();
   });
 
+  it("月で絞り込むと、その月の記録だけを表示する（サマリーは範囲全体のまま）", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 19));
+    mockHook({
+      result: makeShared({
+        meals: [
+          meal("1", "2026-11-03", "lunch"),
+          meal("2", "2026-10-05", "lunch"),
+        ],
+      }),
+    });
+    renderPage();
+    expect(screen.getByText("食事2")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "月で絞り込む" }));
+    expect(screen.getByText("食事1")).toBeInTheDocument();
+    expect(screen.queryByText("食事2")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "前の月" }));
+    expect(screen.getByText("食事2")).toBeInTheDocument();
+    expect(screen.queryByText("食事1")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "前の月" }));
+    expect(
+      screen.getByText("この月の食事記録はありません"),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "クリア" }));
+    expect(screen.getByText("食事1")).toBeInTheDocument();
+    expect(screen.getByText("食事2")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("「古い順」で日付の古い記録から表示する", async () => {
+    renderPage();
+    const names = () =>
+      screen.getAllByText(/^食事\d+$/).map((el) => el.textContent);
+    expect(names()).toEqual(["食事2", "食事1", "食事3"]);
+
+    await userEvent.click(screen.getByRole("button", { name: "古い順" }));
+    expect(names()).toEqual(["食事3", "食事2", "食事1"]);
+  });
+
   it("範囲内に記録が無ければその旨を表示する", () => {
     mockHook({ result: makeShared({ meals: [] }) });
     renderPage();
@@ -158,9 +212,10 @@ describe("SharedMeals - 有効なリンク", () => {
 
   it("検索エンジンに載せないよう noindex を指定する", () => {
     renderPage();
-    expect(
-      document.head.querySelector('meta[name="robots"]'),
-    ).toHaveAttribute("content", "noindex, nofollow");
+    expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      "noindex, nofollow",
+    );
   });
 });
 
@@ -175,7 +230,9 @@ describe("SharedMeals - 表示できないとき", () => {
     mockHook({ result: { status: "expired" } });
     renderPage();
     expect(
-      screen.getByRole("heading", { name: "このリンクは有効期限が切れています" }),
+      screen.getByRole("heading", {
+        name: "このリンクは有効期限が切れています",
+      }),
     ).toBeInTheDocument();
     expect(screen.queryByText("食事1")).not.toBeInTheDocument();
   });
