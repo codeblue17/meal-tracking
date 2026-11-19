@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { toDateStr, fromDateStr, formatDisplayDate } from "@/utils/dateUtils";
+import {
+  toDateStr,
+  fromDateStr,
+  formatDisplayDate,
+  toMonthStr,
+  shiftMonth,
+  formatMonthLabel,
+} from "@/utils/dateUtils";
 
 describe("toDateStr", () => {
   it("YYYY-MM-DD 形式で返す", () => {
@@ -28,5 +35,31 @@ describe("fromDateStr", () => {
 
   it("toDateStr と往復できる", () => {
     expect(toDateStr(fromDateStr("2026-01-01"))).toBe("2026-01-01");
+  });
+});
+
+describe("toMonthStr", () => {
+  it("YYYY-MM 形式で返し、月をゼロ埋めする", () => {
+    expect(toMonthStr(new Date(2026, 0, 31))).toBe("2026-01");
+    expect(toMonthStr(new Date(2026, 10, 1))).toBe("2026-11");
+  });
+});
+
+describe("shiftMonth", () => {
+  it("前後の月に移動する", () => {
+    expect(shiftMonth("2026-06", -1)).toBe("2026-05");
+    expect(shiftMonth("2026-06", 1)).toBe("2026-07");
+  });
+
+  it("年をまたぐ", () => {
+    expect(shiftMonth("2026-01", -1)).toBe("2025-12");
+    expect(shiftMonth("2026-12", 1)).toBe("2027-01");
+  });
+});
+
+describe("formatMonthLabel", () => {
+  it("「YYYY年M月」で返す", () => {
+    expect(formatMonthLabel("2026-01")).toBe("2026年1月");
+    expect(formatMonthLabel("2026-11")).toBe("2026年11月");
   });
 });

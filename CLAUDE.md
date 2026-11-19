@@ -51,6 +51,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
   - `profile/ShareSection.tsx` — issue/list/revoke share links (owns its form state, uses `useMealShares`). Parts: `ShareLinkItem.tsx` (copy link, Web Share API "送る" when available, revoke), `RevokeShareDialog.tsx`.
   - `share/` — `SharedMealsHeader` (whose records, goal, range, expiry), `SharedMealsSummary` (counts + meal-time distribution), `SharedMealsNotice` (messages when nothing can be shown).
   - In the share UI, "見せる記録" (`start_date` / `end_date`, the range of meal dates) and "リンクを開ける期間" (`expires_at`) are separate settings; keep the wording "いつの食事から / いつの食事まで" vs "リンクを開ける" so the two are not read as the same deadline. Shared wording lives in `src/utils/shareFormat.ts`.
+- `src/pages/List.tsx` — filters by meal time and by month (`list/MonthFilter`; state is a `YYYY-MM` string, `""` = all months, which is the default. 「月で絞り込む」 starts at this month, then `‹ 2026年11月 ›` / 「今月」 / 「クリア」; matched by the `YYYY-MM-` prefix of `eaten_at`). The old date-range filter (`list/DateRangeFilter.tsx`) is kept on purpose, commented out in `List.tsx`, in case it is brought back; don't delete it as dead code.
 - `src/components/ui/` — shared components:
   - `FormField.tsx` — label + input pair built on Chakra `Field`; the label is linked to the `Input` / `Textarea` inside it. Use it for every labeled form control, except groups of checkboxes: wrap those in Chakra `Fieldset` (`Fieldset.Root` / `Fieldset.Legend` / `Fieldset.HelperText`) instead. Inside a `Field`, every checkbox gets the same id, which breaks their labels (see "見せる内容" in `ShareSection.tsx`).
   - `MealFormModal.tsx` — add/edit meal dialog (used by Dashboard and List). Its parts live in `mealForm/`.
@@ -67,7 +68,7 @@ Before finishing a change, run `npm test`, `npm run lint`, and `npx tsc -b`.
 - `src/types/` — `meal.ts` (`Meal`, and `MealSummary`, the fields a list row needs; list components take `MealSummary` so shared meals without `user_id` / `created_at` fit), `mealShare.ts` (`MealShare`, `SharedMeals`, `SharedMealsResult`).
 - `src/styles/` — shared style objects (`inputStyle` for form inputs, `cardStyle` for dashboard cards).
 - `src/utils/mealValidation.ts` — `validateMealInput(name, memo)`: trims and checks meal input, returns the cleaned values or an error message.
-- `src/utils/dateUtils.ts` — `toDateStr` (local `YYYY-MM-DD`; `meals.eaten_at` uses this format and is compared as a string), `fromDateStr` (the reverse, local midnight), display formatters.
+- `src/utils/dateUtils.ts` — `toDateStr` (local `YYYY-MM-DD`; `meals.eaten_at` uses this format and is compared as a string), `fromDateStr` (the reverse, local midnight), `toMonthStr` / `shiftMonth` / `formatMonthLabel` (`YYYY-MM` months), display formatters.
 - `src/utils/mealList.ts` — `sortMealsForList` (newest date first, then meal-time order) and `groupByDate` (→ `DateGroup[]`), shared by List and the share page.
 - `src/utils/shareValidation.ts` (`validateShareInput`), `shareUrl.ts` (`buildShareUrl(token)` → `${origin}/share/${token}`), `shareFormat.ts` (share range / contents / expiry wording).
 

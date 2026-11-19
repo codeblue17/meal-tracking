@@ -10,8 +10,10 @@ import { Pagination } from "@/components/ui/Pagination";
 import { ListHeader } from "@/components/list/ListHeader";
 import { MealTimeFilter } from "@/components/list/MealTimeFilter";
 import type { MealTimeFilterValue } from "@/components/list/MealTimeFilter";
-import { DateRangeFilter } from "@/components/list/DateRangeFilter";
-import type { DateRange } from "@/components/list/DateRangeFilter";
+// 日付範囲フィルタは表示月フィルタに置き換えた。再採用に備えてコメントアウトで残す
+// import { DateRangeFilter } from "@/components/list/DateRangeFilter";
+// import type { DateRange } from "@/components/list/DateRangeFilter";
+import { MonthFilter } from "@/components/list/MonthFilter";
 import { EmptyMealList } from "@/components/list/EmptyMealList";
 import { MealGroupList } from "@/components/list/MealGroupList";
 import type { Meal } from "@/types/meal";
@@ -24,8 +26,11 @@ export const List: FC = memo(() => {
   const { meals, setMeals, loading } = useMeals();
   const [mealTimeFilter, setMealTimeFilter] =
     useState<MealTimeFilterValue>("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  // 表示する月（YYYY-MM）。空文字は絞り込みなし（初期表示はすべて）
+  const [month, setMonth] = useState("");
+  // 日付範囲フィルタ（コメントアウト中）
+  // const [dateFrom, setDateFrom] = useState("");
+  // const [dateTo, setDateTo] = useState("");
   const [page, setPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
@@ -41,11 +46,17 @@ export const List: FC = memo(() => {
     [],
   );
 
-  const handleDateRangeChange = useCallback(({ from, to }: DateRange) => {
-    setDateFrom(from);
-    setDateTo(to);
+  const handleMonthChange = useCallback((value: string) => {
+    setMonth(value);
     setPage(1);
   }, []);
+
+  // 日付範囲フィルタ（コメントアウト中）
+  // const handleDateRangeChange = useCallback(({ from, to }: DateRange) => {
+  //   setDateFrom(from);
+  //   setDateTo(to);
+  //   setPage(1);
+  // }, []);
 
   const openEditModal = useCallback(
     (mealId: string) => {
@@ -82,15 +93,17 @@ export const List: FC = memo(() => {
 
   // 表示順（日付降順→時間帯順）に並べてからページ分を切り出す
   const filteredMeals = useMemo(() => {
-    // eaten_at は YYYY-MM-DD 形式のため文字列比較で範囲判定できる
+    // eaten_at は YYYY-MM-DD 形式のため、表示月（YYYY-MM）との前方一致で絞り込める
     const filtered = meals.filter(
       (m) =>
         (mealTimeFilter === "all" || m.meal_time === mealTimeFilter) &&
-        (!dateFrom || m.eaten_at >= dateFrom) &&
-        (!dateTo || m.eaten_at <= dateTo),
+        (!month || m.eaten_at.startsWith(`${month}-`)),
+      // 日付範囲フィルタ（コメントアウト中）。文字列比較で範囲判定できる
+      // && (!dateFrom || m.eaten_at >= dateFrom) &&
+      // (!dateTo || m.eaten_at <= dateTo),
     );
     return sortMealsForList(filtered);
-  }, [meals, mealTimeFilter, dateFrom, dateTo]);
+  }, [meals, mealTimeFilter, month]);
 
   const totalPages = Math.max(1, Math.ceil(filteredMeals.length / PAGE_SIZE));
   // 削除などで件数が減った場合もページ範囲内に収める
@@ -124,12 +137,15 @@ export const List: FC = memo(() => {
           onChange={handleMealTimeFilterChange}
         />
 
-        {/* 日付フィルタ */}
-        <DateRangeFilter
+        {/* 表示月フィルタ */}
+        <MonthFilter value={month} onChange={handleMonthChange} />
+
+        {/* 日付フィルタ（表示月フィルタに置き換え。再採用に備えて残す） */}
+        {/* <DateRangeFilter
           from={dateFrom}
           to={dateTo}
           onChange={handleDateRangeChange}
-        />
+        /> */}
 
         {/* 食事記録リスト */}
         {loading ? (
@@ -137,9 +153,8 @@ export const List: FC = memo(() => {
             <Spinner size="lg" color="teal.500" borderWidth="3px" />
           </Flex>
         ) : filteredMeals.length === 0 ? (
-          <EmptyMealList
-            isFiltered={mealTimeFilter !== "all" || !!dateFrom || !!dateTo}
-          />
+          // 日付範囲フィルタ使用時: mealTimeFilter !== "all" || !!dateFrom || !!dateTo
+          <EmptyMealList isFiltered={mealTimeFilter !== "all" || !!month} />
         ) : (
           <>
             <MealGroupList
